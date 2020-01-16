@@ -32,16 +32,20 @@ ui <- fluidPage(theme = shinytheme("journal"),
    
     sidebarPanel( 
      
-        div(p("This is a simple app to show the benefits of using a transformation of skewed data when plotting. Imagine randomly allocating subjects to 3 groups, treating them differently and then comparing them with respect to a measured laboratory response. Laboratory tests measure analytes and therefore we do not expect negative values. 
+        div(p("This is a simple app to show the benefits of using a transformation on skewed data when plotting.
+        Imagine randomly allocating subjects to 3 groups, treating them differently and then comparing them with 
+        respect to a measured laboratory response. Laboratory tests quantify the presence of analytes and 
+        therefore we do not expect negative values. 
               Very often the data will be skewed, with a minority of very high values. 
               Therefore transforming the data will often prove beneficial for visualisation.
+              We fabricate data with the majority of values near zero and a few comparitively very high values.
               Here we use base R boxplots. When we select 'Show me the data!' we present all the data and add random noise horizontally
               to shift all the data points for better visualisation. ")),
         
         div(
        
          
-          br(),
+      #    br(),
           actionButton(inputId='ab1', label="R code",   icon = icon("th"), 
                        onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/One-way-ANOVA/master/app.R', '_blank')"),   
           actionButton("resample", "Simulate a new sample"),
@@ -56,7 +60,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  extend the whiskers to the maximum and minimum.
                  There is the option to show all the data on the plot 'Show me the data!'. 
                  Could you guess what the data would look like?
-                 Probably not, the same boxplot can be constructed from many different data sets. 
+                 No, the same boxplot can be constructed from many different data sets. 
                  Therefore if possible and feasible also plot the raw data. There is also the option
                  to 'Highlight 'outliers'', that is include the 'outliers'. Be careful as plotting the raw data also will double up the 'outlying'
                  data points. Therefore if you are programming boxplots and showing the raw data, turn off the 
@@ -67,7 +71,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
        
              
           sliderInput("N",
-                      "Select the number of data points",
+                      "Select the total number of data points",
                       min=3, max=198, step=3, value=99, ticks=FALSE),
           
           sliderInput("Whisker",
@@ -112,7 +116,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         div(plotOutput("reg.plot", width=fig.width, height=fig.height)),  
     
         p(strong("I hope you agree the plot on the right gives a better understanding of the data distributions. 
-                 Show the raw data and do not select 'Highlight 'outliers''.")) ,
+                 Show the raw data and in this programming exercise, do not select 'Highlight 'outliers''.")) ,
         
       #  div( verbatimTextOutput("reg.summary"))
         
