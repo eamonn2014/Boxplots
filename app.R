@@ -47,7 +47,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
          
       #    br(),
           
-          actionButton("do", "Click Me"),
+         # actionButton("do", "Click Me"),
           actionButton(inputId='ab1', label="R code",   icon = icon("th"), 
                        onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/One-way-ANOVA/master/app.R', '_blank')"),   
           actionButton("resample", "Simulate a new sample"),
@@ -82,7 +82,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
           
           sliderInput("outliers",
                       "Highlight 'outliers'",
-                      min=0, max=1, step=1, value=0, ticks=FALSE),
+                      min=0, max=1, step=1, value=1, ticks=FALSE),
           
           sliderInput("dp",
                       "Show me the data!",
@@ -118,13 +118,13 @@ ui <- fluidPage(theme = shinytheme("journal"),
         div(plotOutput("reg.plot", width=fig.width, height=fig.height)),  
     
         p(strong("I hope you agree the plot on the right gives a better understanding of the data distributions. 
-                 Show the raw data and in this programming exercise, do not select 'Highlight 'outliers''.")) ,
+                 In this programming exercise select 'Show me the data!' and deselect 'Highlight 'outliers''.")) ,
         
        div( verbatimTextOutput("summary"))  
         
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        tabPanel("Wait, what aren't the whiskers different?", value=3, 
+        tabPanel("Wait...what? But aren't the whiskers different?", value=3, 
           
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
