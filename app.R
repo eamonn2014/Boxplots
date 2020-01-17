@@ -46,6 +46,8 @@ ui <- fluidPage(theme = shinytheme("journal"),
        
          
       #    br(),
+          
+          actionButton("do", "Click Me"),
           actionButton(inputId='ab1', label="R code",   icon = icon("th"), 
                        onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/One-way-ANOVA/master/app.R', '_blank')"),   
           actionButton("resample", "Simulate a new sample"),
@@ -151,21 +153,43 @@ ui <- fluidPage(theme = shinytheme("journal"),
   )
 )
 
-server <- shinyServer(function(input, output) {
+
+
+server <- shinyServer(function(input, output   ) {
     
+ #  observeEvent(input$do, {
+ #    
+ #    
+ #    random.sample <- reactive({
+ #      
+ #  
+ # foo <- input$resample
+ #    
+ # 
+ #    })
+ #    
+ #    
+ #  })
+ #  
+  
+  # checkedGroups <- eventReactive(input$goButton, {input$checkgroup})
     # --------------------------------------------------------------------------
     # This is where a new sample is instigated only random noise is required to be generated
     random.sample <- reactive({
 
         # Dummy line to trigger off button-press
-        foo <- input$resample
+     foo <- input$resample
+     Whisker<-  isolate(input$Whisker )
+     outliers <- isolate(input$outliers )
+     n=(input$N )
+     dp=isolate(input$dp )
+     
+      #  whisker <- input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+      # outliers <- input$outliers     # show or hide
+    #    n <- input$N                   # divisible by 3
+       # dp<- input$dp                  # show or hide data points
 
-        whisker <- input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-       outliers <- input$outliers     # show or hide
-        n <- input$N                   # divisible by 3
-        dp<- input$dp                  # show or hide data points
-
-        return(list( n=n,  whisker=whisker , outliers=outliers, dp=dp ))
+     return(list( n=n ,  Whisker=Whisker , outliers=outliers, dp=dp ))
 
     })
     
@@ -176,7 +200,7 @@ server <- shinyServer(function(input, output) {
     #     sample <- random.sample()
     #     
     #     whisker <- sample$whisker        
-    #   #  outliers <- sample$outliers   
+    #   #  outlier#s <- sample$outliers   
     #     n <- sample$n   
     #    # dp<- sample$dp   
     #     
@@ -194,9 +218,14 @@ server <- shinyServer(function(input, output) {
     
     # rangez <-    data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
     # outliers <-  data1$outliers   
-     n<-          input$N  
-    # dp<-         data1$dp 
-    
+  n<-          sample$n  
+    # dp<-         data1$dp
+     # 
+     # whisker<-  isolate(input$Whisker )
+     # outliers <- isolate(input$outliers )
+     # n=isolate(input$N )
+     # dp=isolate(input$dp )
+     # 
     
     outlierz <- 3 
     sds <- runif(outlierz,5,9)                          # create the data
