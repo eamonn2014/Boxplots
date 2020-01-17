@@ -158,7 +158,7 @@ server <- shinyServer(function(input, output) {
     random.sample <- reactive({
 
         # Dummy line to trigger off button-press
-       # foo <- input$resample
+        foo <- input$resample
 
         whisker <- input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
        outliers <- input$outliers     # show or hide
@@ -184,6 +184,41 @@ server <- shinyServer(function(input, output) {
     #     
     # })  
     
+    make.data <- reactive({
+      #      
+     sample <- random.sample()
+    
+  #  data1 <- random.sample()
+    # Get the current data
+    #data1 <- make.regression()
+    
+    # rangez <-    data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+    # outliers <-  data1$outliers   
+     n<-          input$N  
+    # dp<-         data1$dp 
+    
+    
+    outlierz <- 3 
+    sds <- runif(outlierz,5,9)                          # create the data
+    high1 <- sample(75:99, outlierz-1, replace=T) 
+    high2 <- sample(1:199, outlierz-1, replace=T)       # create v high values
+    high<-c(high1, high2)
+    
+    N<- (n-3)/3
+    y <- c( abs(rnorm(N,2,sds[1])) ,high[1] ,  
+            abs(rnorm(N,2,sds[2])) ,high[2],
+            abs(rnorm(N,2,sds[1])) ,high[3] )
+    
+    x <- factor(rep(1:3, each=n/3))
+    
+    d <- data.frame(x=x, y=y)
+    d$logy <- log(d$y) # log the data
+    
+    return(list(d=d ))# rangez=rangez, outliers=outliers, n=n, dp=dp))
+    
+    })
+    
+    
     # --------------------------------------------------------------------------
     # --------------------------------------------------------------------------
     # ---------------------------------------------------------------------------
@@ -191,32 +226,14 @@ server <- shinyServer(function(input, output) {
     
     output$reg.plot <- renderPlot({         
         
-     data1 <- random.sample()
-        # Get the current data
-       #data1 <- make.regression()
-        
-        rangez <-    data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-        outliers <-  data1$outliers   
-        n<-          data1$n  
-        dp<-         data1$dp 
+      
+       d <- make.data()$d
        
-        
-        outlierz <- 3 
-        sds <- runif(outlierz,5,9)                          # create the data
-        high1 <- sample(75:99, outlierz-1, replace=T) 
-        high2 <- sample(1:199, outlierz-1, replace=T)       # create v high values
-        high<-c(high1, high2)
-        
-        N<- (n-3)/3
-        y <- c( abs(rnorm(N,2,sds[1])) ,high[1] ,  
-                abs(rnorm(N,2,sds[2])) ,high[2],
-                abs(rnorm(N,2,sds[1])) ,high[3] )
- 
-        x <- factor(rep(1:3, each=n/3))
-        
-        d <- data.frame(x=x, y=y)
-        d$logy <- log(d$y) # log the data
-        
+       rangez <-    input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+       outliers <-  input$outliers   
+       #n<-          input$n  
+       dp<-         input$dp 
+      
         ticks=c(log(0.001),log(0.01), log(.1), log(1), log(10), log(100), log(1000))
         labs <- exp(ticks)
         
@@ -226,19 +243,19 @@ server <- shinyServer(function(input, output) {
        
           par(mfrow=c(1,2))
  
-          
+        #  boxplot(d$y ~ d$x)
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., #log="y",
                   outline=outliers,
                    col=terrain.colors(4) , range=rangez,
-                   ylim=c(0,max(d$y)), main=paste("Presenting the data on untransformed scale, N=",n) )
+                   ylim=c(0,max(d$y)), main=paste("Presenting the data on untransformed scale, N=", input$N) )
          axis(1, at=1:3, labels=xlab.)
           axis(2,   las=2)
           grid(NA, NULL, col="cornsilk2", lty=6)
 
-          
+
           if (dp==1) {
-          
+
           # Add data points
           mylevels <- levels(d$x)
           levelProportions <- summary(d$x)/nrow(d)
@@ -260,7 +277,7 @@ server <- shinyServer(function(input, output) {
           boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
                   outline=outliers,
                   col=terrain.colors(4) , range=rangez,
-                  ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",n) )
+                  ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",input$N) )
           axis(1, at=1:3, labels=xlab.)
           axis(2, at=ticks, labels=labs, las=2)
           abline(h=ticks, col="cornsilk2", lty=6)
@@ -279,7 +296,7 @@ server <- shinyServer(function(input, output) {
             points(myjitter, thisvalues, pch=20, col=rgb(0,0,0,.9))
           #
           }
-            
+
           }
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
@@ -332,7 +349,7 @@ server <- shinyServer(function(input, output) {
    
   
     
-    return(list( reg.plot()$xx)) 
+    #return(list( reg.plot()$xx)) 
      })
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 })
