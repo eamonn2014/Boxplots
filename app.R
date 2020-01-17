@@ -52,7 +52,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
           br(), br(),
           
   
-            div(strong("Select the parameters"),p(" ")),
+            div(strong("Select the parameters using the sliders below"),p(" ")),
 
             
             div(("Both the number of data points and the length of the whiskers can be varied. 
@@ -118,53 +118,35 @@ ui <- fluidPage(theme = shinytheme("journal"),
         p(strong("I hope you agree the plot on the right gives a better understanding of the data distributions. 
                  Show the raw data and in this programming exercise, do not select 'Highlight 'outliers''.")) ,
         
-      #  div( verbatimTextOutput("reg.summary"))
+       div( verbatimTextOutput("summary"))  
         
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        tabPanel(" ", value=3, 
-                  
-                
-               
-             
-                 
-                #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
-                 # for some reason this is need or abpve will not render!
-                 withMathJax(
-                     helpText('
-                            $$   $$')),  
-        
+        tabPanel("Wait, what aren't the whiskers different?", value=3, 
+          
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel(" ", value=3, 
-                 
-            
-                 
-              
-        ) ,
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               tabPanel(" ", 
 
-           
+        ) ,
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        tabPanel(" ", 
+
             #     div(plotOutput("residual", width=1200, height=800)) ,
-    ) ,
-        
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         tabPanel(" ", 
+        ) ,
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        tabPanel(" ", 
                  
-
-       #   div( verbatimTextOutput("summary2")),
+        #   div( verbatimTextOutput("summary2")),
 
         )
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           )
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         )
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~end tab panels 
-    
-  #  ) #new
+       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        )
+       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~end tab panels 
+ 
     )
   )
 )
@@ -174,103 +156,78 @@ server <- shinyServer(function(input, output) {
     # --------------------------------------------------------------------------
     # This is where a new sample is instigated only random noise is required to be generated
     random.sample <- reactive({
-        
+
         # Dummy line to trigger off button-press
-        foo <- input$resample
+       # foo <- input$resample
 
         whisker <- input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-        outliers <- input$outliers   
-        n <- input$N # divisible by 3
-        
-        dp<- input$dp  # di
+       outliers <- input$outliers     # show or hide
+        n <- input$N                   # divisible by 3
+        dp<- input$dp                  # show or hide data points
 
-        return(list( 
-                    n=n,  whisker=whisker, outliers=outliers, dp=dp
-                    ))
-   
-    }) 
+        return(list( n=n,  whisker=whisker , outliers=outliers, dp=dp ))
+
+    })
     
     # --------------------------------------------------------------------------
     # Set up the dataset based on the inputs 
-    make.regression <- reactive({
-        
-   #   https://stats.stackexchange.com/questions/28876/difference-between-anova-power-simulation-and-power-calculation
-      
-        sample <- random.sample()
-        
-        whisker <- sample$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-        outliers <- sample$outliers   
-        n <- sample$n  # divisible by 3
-        dp<- sample$dp  # di
-        return(list( 
-          n=n,  whisker=whisker, outliers=outliers, dp=dp
-        ))
-        
-    })  
+    # make.regression <- reactive({
+    #      
+    #     sample <- random.sample()
+    #     
+    #     whisker <- sample$whisker        
+    #   #  outliers <- sample$outliers   
+    #     n <- sample$n   
+    #    # dp<- sample$dp   
+    #     
+    #     return(list(   n=n,  whisker=whisker ))#, outliers=outliers, dp=dp   ))
+    #     
+    # })  
     
     # --------------------------------------------------------------------------
-    # Fit the specified regression model
- 
     # --------------------------------------------------------------------------
-    #---------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------
     # Plot a scatter of the data  
     
     output$reg.plot <- renderPlot({         
         
-        # Get the current regression data
-        data1 <- make.regression()
-        # 
+     data1 <- random.sample()
+        # Get the current data
+       #data1 <- make.regression()
         
-        
-        rangez <- data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+        rangez <-    data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
         outliers <-  data1$outliers   
-        n<- data1$n  # divisible by 3
-        dp<- data1$dp  # divi
-        #rangez=0
-        #outliers=0
-        # 
+        n<-          data1$n  
+        dp<-         data1$dp 
+       
         
-        outlierz <- 3
-        sds <- runif(outlierz,.5,1)                      # create the data
+        outlierz <- 3 
+        sds <- runif(outlierz,5,9)                          # create the data
         high1 <- sample(75:99, outlierz-1, replace=T) 
         high2 <- sample(1:199, outlierz-1, replace=T)       # create v high values
         high<-c(high1, high2)
-        # 
+        
         N<- (n-3)/3
         y <- c( abs(rnorm(N,2,sds[1])) ,high[1] ,  
                 abs(rnorm(N,2,sds[2])) ,high[2],
                 abs(rnorm(N,2,sds[1])) ,high[3] )
-        # 
+ 
         x <- factor(rep(1:3, each=n/3))
         
         d <- data.frame(x=x, y=y)
         d$logy <- log(d$y) # log the data
-        # 
-        # 
+        
         ticks=c(log(0.001),log(0.01), log(.1), log(1), log(10), log(100), log(1000))
         labs <- exp(ticks)
-        #  options also not show data points option in rshiny.
-        # rangez <- input$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-        # outliers <- input$Plot      # don't show outliers, as we will show all points  
-        # xlabz <- "Experimental Group"
-        # ylab. <- "Response"
-        # xlab. <- c("Group 1","Group 2","Group 3")
-        # 
+        
         xlabz <- "Experimental Group"
         ylab. <- "Response"
         xlab. <- c("Group 1","Group 2","Group 3")
-        # Conditionally plot
-     #   if (input$Plot == "ggplot") {
-        
-        #base plot~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        #https://rstudio-pubs-static.s3.amazonaws.com/308410_2ece93ee71a847af9cd12fa750ed8e51.html
        
           par(mfrow=c(1,2))
-          # try the boxplot function itself
+ 
           
-         # boxplot(d$y ~ d$x)
-          
-          # #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., #log="y",
                   outline=outliers,
                    col=terrain.colors(4) , range=rangez,
@@ -296,13 +253,10 @@ server <- shinyServer(function(input, output) {
           }
 
           }
-         if (min(d$y)<0.1) {low=0.01} else {low=0.1}
-          
-          if (max(d$y)>100) {up=1000} else {up=100}
-          
-          
-          
-          
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          if (min(d$y)<0.1) {low=0.01} else {low=0.1}
+          if (max(d$y)>100) {up=1000}  else {up=100}
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
                   outline=outliers,
                   col=terrain.colors(4) , range=rangez,
@@ -325,39 +279,13 @@ server <- shinyServer(function(input, output) {
             points(myjitter, thisvalues, pch=20, col=rgb(0,0,0,.9))
           #
           }
+            
           }
-          # )
-          par(mfrow=c(1,1))
-          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
-        #} else {
-          
-        #VCA plot~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           
-        #     varPlot(DV~IV, df, 
-        #             BG=list(var="IV", 
-        #                     col=c("#f7fcfd","#e5f5f9","#ccece6","#99d8c9",
-        #                           "#66c2a4","#41ae76","#238b45","#006d2c","#00441b"), 
-        #                     col.table=TRUE), 
-        #             VLine=list(var=c("IV"), 
-        #                        col=c("black", "mediumseagreen"), lwd=c(2,1), 
-        #                        col.table=c(TRUE,TRUE)), 
-        #             JoinLevels=list(var="IV", col=c("lightblue", "cyan", "yellow"), 
-        #                             lwd=c(2,2,2), 
-        #           MeanLine=list(var="DV", col="blue", lwd=2) ,
-        #           
-        #             # Title=list(main=paste("Variability Chart. Truth (estimate): intercept "
-        #             #                       ,input$intercept,"(",fit.regression()$emu,"), top level sd=",
-        #             #            input$a,"(",fit.regression()$etop,")", ",\n middle level sd=",
-        #             #            input$b ,"(",fit.regression()$eday,"), lowest level sd=",
-        #             #            input$c, "(",fit.regression()$erun,") & random error sd=", 
-        #             #            input$d,"(",fit.regression()$esigma,")")),
-        #             
-        #             # MeanLine=list(var="mid", col="pink", lwd=2),
-        #             Points=list(pch=list(var="mid", pch=c(21, 22, 24)), 
-        #                         bg =list(var="mid", bg=c("lightblue", "cyan", "yellow")), 
-        #                         cex=1.25))    )
-        # }
+          par(mfrow=c(1,1))
+          xx <- tapply(d$y, d$x, summary)
+          return(xx=xx)
         
     })
     #---------------------------------------------------------------------------
@@ -365,23 +293,13 @@ server <- shinyServer(function(input, output) {
     #---------------------------------------------------------------------------
     # Plot residuals 
     
- #   output$residual <- renderPlot({         
-      
-      # Get the current regression model
-      # d  <- fit.regression()
-      # 
-      # f<- d$ff
-      #  
-      # par(mfrow=c(3,2))
-      # plot(f)
-      # 
-      # #dd <- d$fit.res
-      # anova.residuals <- residuals( object =  f) # extract the residuals
-      # # A simple histogram
-      # hist( x = anova.residuals , breaks=50, main=paste("Histogram of ANOVA residuals, SD=",p2(sd(anova.residuals)),"")) # another way of seeing residuals
-      # par(mfrow=c(1,1)) 
-      # 
-    #})
+   # output$summary <- reactive({     
+   # 
+   #     d  <- reg.plot()
+   #   
+   #    x<- tapply(d$y, d$x, summary)
+   #  
+   # })
     
     #---------------------------------------------------------------------------
  # Show the summary for the 
@@ -410,11 +328,12 @@ server <- shinyServer(function(input, output) {
 
     #})
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #output$byhand2 <- renderPrint({
-      
-    #  return(explain()$ANOVA2)
+     output$summary <- renderPrint({
    
-    #})
+  
+    
+    return(list( reg.plot()$xx)) 
+     })
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 })
 
