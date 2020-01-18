@@ -436,7 +436,7 @@ server <- shinyServer(function(input, output   ) {
       boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,   horizontal = TRUE, axes = FALSE, staplewex = 1,
               outline=outliers,
               col=terrain.colors(4)[3] , range=rangez,  width=10,
-              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data with the boxplot statistics, top on the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
+              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
      # axis(1, at=1:3, labels=xlab.)
       axis(1,   las=1)
        grid(  NULL, NA, col="cornsilk2", lty=7)
@@ -450,7 +450,7 @@ server <- shinyServer(function(input, output   ) {
          
         # Add data points
         mylevels <- 1
-        levelProportions <- summary(d$x)/nrow(d)
+        levelProportions <- .01 #summary(d$x)/nrow(d)
         for(i in 1:length(mylevels)){
           
           thislevel <- mylevels[i]
