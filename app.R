@@ -436,16 +436,16 @@ server <- shinyServer(function(input, output   ) {
       boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,   horizontal = TRUE, axes = FALSE, staplewex = 1,
               outline=outliers,
               col=terrain.colors(4)[3] , range=rangez,  width=10,
-              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data with the boxplot statistics, top on the raw untransformed scale, \nbottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
+              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data with the boxplot statistics, top on the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
      # axis(1, at=1:3, labels=xlab.)
       axis(1,   las=1)
        grid(  NULL, NA, col="cornsilk2", lty=7)
      # abline(v=ticks, col="cornsilk2", lty=6)
       text(x = p2(bs), labels = p2(bs1), y = 1.48)
       text(x = p2(bs0), labels = p2(bs2), y =  .53)
+      
+      
       if (dp==1) {
-        
-        
         cols <-  c(    "purple")
          
         # Add data points
@@ -457,7 +457,7 @@ server <- shinyServer(function(input, output   ) {
           thisvalues <- d[d$x==thislevel, 'y']
           library(scales)
           myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
-          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.4) )   
+          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.8) )   
           
         }
        
@@ -490,18 +490,18 @@ server <- shinyServer(function(input, output   ) {
       
       if (dp==1) {
         cols <-  c(    "purple")
-        
+
         # Add data points
         mylevels <- 1
         levelProportions <- summary(d$x)/nrow(d)
         for(i in 1:length(mylevels)){
-          
+
           thislevel <- mylevels[i]
           thisvalues <- d[d$x==thislevel, 'logy']
-          
+
           # take the x-axis indices and add a jitter, proportional to the N in each level
-          myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
-          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.4) )   
+         # myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
+          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.8) )   
           #
         }
         
