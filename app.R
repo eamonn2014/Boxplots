@@ -45,9 +45,9 @@ ui <- fluidPage(theme = shinytheme("journal"),
         respect to a measured laboratory response. Laboratory tests quantify the presence of analytes and 
         therefore we do not expect negative values. 
               Very often the data will be skewed, with a minority of very high values. 
-              Therefore transforming the data will often prove beneficial for visualisation.
+              Therefore transforming the data often proves beneficial for visualisation.
               We fabricate data with the majority of values near zero and a few comparitively very high values.
-              Here we use base R boxplots. When we select 'Show me the data!' we present all the data and add random noise horizontally
+              Here we use base R boxplots. When we select 'Show me the data!' we present all the data and add random noise 
               to shift all the data points for better visualisation. ")),
         
         div(
@@ -132,7 +132,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        tabPanel("Wait...what? But aren't the whiskers different?", value=3, 
+        tabPanel("Wait...what? Aren't the whiskers different?", value=3, 
                  div(plotOutput("reg.plot2", width=fig.width, height=fig.height)),  
                  p(strong("Apply the 1.5 IQR rule on the scale used to draw the box plots. If using a transformation calculations should be on that scale. 
                  Above all, don't mix scales (e.g. calculate whiskers based on 1.5 IQR on the raw scale, then log transform to get a new graph")) ,
@@ -324,7 +324,15 @@ server <- shinyServer(function(input, output   ) {
       
         ticks=c(log(0.001),log(0.01), log(.1), log(1), log(10), log(100), log(1000))
         labs <- exp(ticks)
+        A <-seq(from=0.001, to= 0.01, by=0.001)
+        A<-1
+        B <-seq(from= 0.01, to= 0.1, by=0.01)
+        C <-seq(from=  0.1, to =1, by=.1)
+        D <-seq(from=    1, to =10, by=1)
+        E <-seq(from=    10, to =100, by=10)
+        FF <-seq(from=   100, to =1000, by=100)
         
+        tickz <- unique(c(A,B,C,D,E,FF))
         xlabz <- "Experimental Group"
         ylab. <- "Response"
         xlab. <- c("Group 1","Group 2","Group 3")
@@ -336,7 +344,7 @@ server <- shinyServer(function(input, output   ) {
           boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., #log="y",
                   outline=outliers,
                    col=terrain.colors(4) , range=rangez,
-                   ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) )
+                   ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) ) 
          axis(1, at=1:3, labels=xlab.)
           axis(2,   las=2)
           grid(NA, NULL, col="cornsilk2", lty=6)
@@ -369,7 +377,7 @@ server <- shinyServer(function(input, output   ) {
           axis(1, at=1:3, labels=xlab.)
           axis(2, at=ticks, labels=labs, las=2)
           abline(h=ticks, col="cornsilk2", lty=6)
-
+          rug(x = log(tickz), ticksize = -0.01, side = 2)
           if (dp==1) {
           # Add data points
           mylevels <- levels(d$x)
