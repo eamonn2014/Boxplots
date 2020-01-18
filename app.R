@@ -367,8 +367,20 @@ server <- shinyServer(function(input, output   ) {
 
           }
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          if (min(d$y)<0.1) {low=0.01} else {low=0.1}
+          if (min(d$y)<0.1) {
+            
+            low=0.01
+            tickz <- unique(c( B,C,D,E,FF))
+            
+          } else {
+              low=0.1
+              tickz <- unique(c( C,D,E,FF))
+              }
+          
+          
           if (max(d$y)>100) {up=1000}  else {up=100}
+          
+          
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
                   outline=outliers,
@@ -471,7 +483,16 @@ server <- shinyServer(function(input, output   ) {
        
       }
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      if (min(d$y)<0.1) {low=0.01} else {low=0.1}
+      if (min(d$y)<0.1) {
+        
+        low=0.01
+        tickz <- unique(c( B,C,D,E,FF))
+        
+      } else {
+        low=0.1
+        tickz <- unique(c( C,D,E,FF))
+      }
+      
       if (max(d$y)>100) {up=1000}  else {up=100}
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       # bs <- (boxplot.stats(d$logy)$stats)
