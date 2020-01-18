@@ -145,8 +145,20 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  That is different than merely drawing the original boxplot on a logarithmic scale")) ,
        
                  p(strong("as simple graphical characterizations of the bulk of a dataset")) ,
+                 
+                 p(strong("
+       The values of the box are called hinges and may coincide with the quartiles (as calculated by quantile(x, c(0.25, .075))), but are calculated differently.
+       
+       From ?boxplot.stats:
+         
+         The two ‘hinges’ are versions of the first and third quartile, i.e., close to quantile(x, c(1,3)/4). The hinges equal the quartiles for odd n (where n <- length(x)) and differ for even n. Whereas the quartiles only equal observations for n %% 4 == 1 (n = 1 mod 4), the hinges do so additionally 
+       for n %% 4 == 2 (n = 2 mod 4), and are in the middle of two observations otherwise.")) ,
                   ) ,
        
+       
+       
+       
+
        
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -261,6 +273,24 @@ server <- shinyServer(function(input, output   ) {
     
     x <- factor(rep(1:3, each=n/3))
     
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    #y <- rgeom(n, .01)# rexp(n, .02)
+    y <- rlnorm(n, .7, 1.5)# rexp(n, .02)
+    
+  # y <- sort(round(y))
+    x <- factor(sample(3, length(y), repl = TRUE))
+ 
+    #split( y , sample(3, length(y) , repl = TRUE) )
+    
+    #is.even <- function(x){ x %% 2 == 0 }
+    
+    
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    
+    
+    
+    
     d <- data.frame(x=x, y=y)
     d$logy <- log(d$y) # log the data
     
@@ -300,6 +330,15 @@ server <- shinyServer(function(input, output   ) {
               abs(rnorm(N,mu,sds[1])) ,high[3] )
       
       x <- factor(rep(1:3, each=n/3))
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     
+     #y <- c(abs(rnorm(n-4,1,29)), sample(50:150,4, replace=FALSE))# c(rchisq(n/2,.8)*3+1 rf(n, 123,2)  #rlnorm(n, .8, 1.5)# r rlnorm(n, .9, 1.9)#   rlnorm(n, .1, 0.3)#rexp(n, .09)
+       #y <- sort(round(y))
+     
+    # y<- abs(rcauchy(n, location =1, scale = 1))*10+3 #rlnorm(n, );x<-5.2*(x-mean(x))/sd(x)+102
+     
+     y<- c(rbeta(n-4, 2,6)*35,  sample(50:150,4, replace=FALSE))
+     x <- factor(sample(3, length(y), repl = TRUE))
       
       d <- data.frame(x=x, y=y)
       d$logy <- log(d$y) # log the data
@@ -347,9 +386,19 @@ server <- shinyServer(function(input, output   ) {
                    ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) ) 
          axis(1, at=1:3, labels=xlab.)
           axis(2,   las=2)
-          grid(NA, NULL, col="cornsilk2", lty=6)
+         # grid(NA, NULL, col="cornsilk2", lty=6)
+          panel.first = 
+            c(grid(NA, NULL, col="cornsilk2", lty=6))
 
-
+          
+          
+          par(new=TRUE) #repeating
+          
+          boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., #log="y",
+                  outline=outliers,
+                  col=terrain.colors(4) , range=rangez,
+                  ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) ) 
+          
           if (dp==1) {
 
           # Add data points
@@ -388,7 +437,20 @@ server <- shinyServer(function(input, output   ) {
                   ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",input$N) )
           axis(1, at=1:3, labels=xlab.)
           axis(2, at=ticks, labels=labs, las=2)
-          abline(h=ticks, col="cornsilk2", lty=6)
+          #abline(h=ticks, col="cornsilk2", lty=6)
+          
+          panel.first = 
+            c( abline(h=ticks, col="cornsilk2", lty=6))
+          
+          
+          par(new=TRUE) #repeating so grid lines are ar back
+          boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
+                  outline=outliers,
+                  col=terrain.colors(4) , range=rangez,
+                  ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",input$N) )
+          
+          
+          
           rug(x = log(tickz), ticksize = -0.01, side = 2)
           if (dp==1) {
           # Add data points
@@ -456,13 +518,20 @@ server <- shinyServer(function(input, output   ) {
       boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,   horizontal = TRUE, axes = FALSE, staplewex = 1,
               outline=outliers,
               col=terrain.colors(4)[3] , range=rangez,  width=10,
-              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
+              ylim=c(0,max(d$y)*1.2), 
+              main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
      # axis(1, at=1:3, labels=xlab.)
       axis(1,   las=1)
        grid(  NULL, NA, col="cornsilk2", lty=7)
      # abline(v=ticks, col="cornsilk2", lty=6)
       text(x = p2(bs), labels = p2(bs1), y = 1.48)
       text(x = p2(bs0), labels = p2(bs2), y =  .53)
+      par(new=TRUE) #repeating so grid lines are ar back
+      boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,   horizontal = TRUE, axes = FALSE, staplewex = 1,
+              outline=outliers,
+              col=terrain.colors(4)[3] , range=rangez,  width=10,
+              ylim=c(0,max(d$y)*1.2), 
+              main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
       
       
       if (dp==1) {
@@ -477,7 +546,7 @@ server <- shinyServer(function(input, output   ) {
           thisvalues <- d[d$x==thislevel, 'y']
           library(scales)
           myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
-          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.8) )   
+          points( thisvalues, myjitter, pch=1, col = alpha(cols, 0.8) )   
           
         }
        
@@ -517,6 +586,17 @@ server <- shinyServer(function(input, output   ) {
       text(x = p2(bs), labels = p2(bs1), y = 1.48)
       text(x = p2(bs0), labels = p2(bs2), y =  .53)
       
+      
+      par(new=TRUE)
+      
+      boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., horizontal = TRUE, axes = FALSE, staplewex = 1,
+              outline=outliers,
+              col=terrain.colors(4) [3], range=rangez, width=10,
+              ylim=c(log(low),log(up))) #, main=paste("Presenting the same data, but logging the data and with an antilog scale and including the box plot stats, N=",input$N ) )
+      
+      
+      
+      
       if (dp==1) {
         cols <-  c(    "purple")
 
@@ -530,7 +610,7 @@ server <- shinyServer(function(input, output   ) {
 
           # take the x-axis indices and add a jitter, proportional to the N in each level
          # myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
-          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.8) )   
+          points( thisvalues, myjitter, pch=1, col = alpha(cols, 0.8) )   
           #
         }
         
