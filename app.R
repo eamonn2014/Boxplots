@@ -1,5 +1,12 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Rshiny ideas from on https://gallery.shinyapps.io/multi_regression/
+# https://r.789695.n4.nabble.com/Whiskers-on-the-default-boxplot-graphics-td2195503.html
+# https://www.r-bloggers.com/whisker-of-boxplot/
+# https://journals.sagepub.com/doi/pdf/10.1177/1536867X0900900309
+# https://journals.sagepub.com/doi/pdf/10.1177/1536867X1301300214
+# https://www.stata.com/support/faqs/graphics/box-plots-and-logarithmic-scales/
+# https://stats.stackexchange.com/questions/112705/boxplots-with-lognormally-distributed-data
+# https://www.r-graph-gallery.com/96-boxplot-with-jitter.html
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     library(ggplot2)
     library(shiny) 
@@ -12,7 +19,7 @@
     p1 <- function(x) {formatC(x, format="f", digits=1)}
     p2 <- function(x) {formatC(x, format="f", digits=2)}
     options(width=100)
-    set.seed(123)
+    set.seed(12345)
 
     
     # xlabz <- "Experimental Group"
@@ -83,11 +90,11 @@ ui <- fluidPage(theme = shinytheme("journal"),
           
           sliderInput("outliers",
                       "Highlight 'outliers'",
-                      min=0, max=1, step=1, value=1, ticks=FALSE),
+                      min=0, max=1, step=1, value=0, ticks=FALSE),
           
           sliderInput("dp",
                       "Show me the data!",
-                      min=0, max=1, step=1, value=0, ticks=FALSE),
+                      min=0, max=1, step=1, value=1, ticks=FALSE),
           
             
                )
@@ -127,7 +134,20 @@ ui <- fluidPage(theme = shinytheme("journal"),
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel("Wait...what? But aren't the whiskers different?", value=3, 
                  div(plotOutput("reg.plot2", width=fig.width, height=fig.height)),  
-        ) ,
+                 p(strong("Apply the 1.5 IQR rule on the scale used to draw the box plots. If using a transformation calculations should be on that scale. 
+                 Above all, don't mix scales (e.g. calculate whiskers based on 1.5 IQR on the raw scale, then log transform to get a new graph")) ,
+                 
+                 p(strong("
+                 re-expressing the data and redrawing the boxplot based on the re-expressed data. 
+                 That means that you write down the logarithms of the data and proceed with the usual computations based on the logs. 
+                 Although the medians and hinges will be the logs of the original medians and hinges, the step (which determines the fences)
+                 will change. 
+                 That is different than merely drawing the original boxplot on a logarithmic scale")) ,
+       
+                 p(strong("as simple graphical characterizations of the bulk of a dataset")) ,
+                  ) ,
+       
+       
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel(" ", value=3, 
@@ -180,7 +200,7 @@ server <- shinyServer(function(input, output   ) {
 
         # Dummy line to trigger off button-press
      foo <- input$resample
-     Whisker<-  isolate(input$Whisker )
+     Whisker<-   isolate(input$Whisker )
      outliers <- isolate(input$outliers )
      n=(input$N )
      dp=isolate(input$dp )
@@ -190,7 +210,7 @@ server <- shinyServer(function(input, output   ) {
     #    n <- input$N                   # divisible by 3
        # dp<- input$dp                  # show or hide data points
 
-     return(list( n=n ,  Whisker=Whisker , outliers=outliers, dp=dp ))
+     return(list( n=n ,  Whisker=Whisker , outliers=outliers, dp=dp )) 
 
     })
     
@@ -256,7 +276,7 @@ server <- shinyServer(function(input, output   ) {
       # Get the current data
       #data1 <- make.regression()
       
-      # rangez <-    data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+      rangez <-    sample$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
       # outliers <-  data1$outliers   
       n<-          sample$n  
       # dp<-         data1$dp
@@ -284,7 +304,7 @@ server <- shinyServer(function(input, output   ) {
       d <- data.frame(x=x, y=y)
       d$logy <- log(d$y) # log the data
       
-      return(list(d=d ))# rangez=rangez, outliers=outliers, n=n, dp=dp))
+      return(list(d=d , rangez=rangez))# rangez=rangez, outliers=outliers, n=n, dp=dp))
       
     })
     # --------------------------------------------------------------------------
@@ -316,7 +336,7 @@ server <- shinyServer(function(input, output   ) {
           boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., #log="y",
                   outline=outliers,
                    col=terrain.colors(4) , range=rangez,
-                   ylim=c(0,max(d$y)), main=paste("Presenting the data on untransformed scale, N=", input$N) )
+                   ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) )
          axis(1, at=1:3, labels=xlab.)
           axis(2,   las=2)
           grid(NA, NULL, col="cornsilk2", lty=6)
@@ -380,12 +400,23 @@ server <- shinyServer(function(input, output   ) {
      
       d <- make.data2()$d
       
-      rangez <-    input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+     rangez <-    input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+     # rangez <- make.data2()$rangez
+      
       outliers <-  input$outliers   
       #n<-          input$n  
       dp<-         input$dp 
       
-      ticks=c(log(0.001),log(0.01), log(.1), log(1), log(10), log(100), log(1000))
+      A <-seq(from=0.001, to= 0.01, by=0.001)
+      B <-seq(from= 0.01, to= 0.1, by=0.01)
+      C <-seq(from=  0.1, to =1, by=.1)
+      D <-seq(from=    1, to =10, by=1)
+      E <-seq(from=    10, to =100, by=10)
+      FF <-seq(from=   100, to =1000, by=100)
+      
+      tickz <- unique(c(A,B,C,D,E,FF))
+      
+      ticks=c(log(c( 0.001, 0.01,  .1,  1,  10,  100,  1000)))
       labs <- exp(ticks)
       
       ylab. <- " "
@@ -396,20 +427,20 @@ server <- shinyServer(function(input, output   ) {
       
       d$x=1   # change
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      bs <- (boxplot.stats(d$y)$stats)[c(1,3,5)]
-      bs1 <-  (boxplot.stats(d$y)$stats)[c(1,3,5)]
+      bs <- (boxplot.stats(d$y,coef = rangez)$stats)[c(1,3,5)]
+      bs1 <-  (boxplot.stats(d$y,coef = rangez)$stats)[c(1,3,5)]
       
-      bs0 <- (boxplot.stats(d$y)$stats)[c(2,4)]
-      bs2 <-  (boxplot.stats(d$y)$stats)[c(2,4)]
-      
+      bs0 <- (boxplot.stats(d$y,coef = rangez)$stats)[c(2,4)]
+      bs2 <-  (boxplot.stats(d$y,coef = rangez)$stats)[c(2,4)]
+       
       boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,   horizontal = TRUE, axes = FALSE, staplewex = 1,
               outline=outliers,
               col=terrain.colors(4)[3] , range=rangez,  width=10,
-              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data on untransformed scale with the box plot stats, N=", input$N))
+              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data with the boxplot statistics, top on the raw untransformed scale, \nbottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
      # axis(1, at=1:3, labels=xlab.)
       axis(1,   las=1)
-     # grid(NA, NULL, col="cornsilk2", lty=6)
-      
+       grid(  NULL, NA, col="cornsilk2", lty=7)
+     # abline(v=ticks, col="cornsilk2", lty=6)
       text(x = p2(bs), labels = p2(bs1), y = 1.48)
       text(x = p2(bs0), labels = p2(bs2), y =  .53)
       if (dp==1) {
@@ -438,19 +469,20 @@ server <- shinyServer(function(input, output   ) {
       # bs <- (boxplot.stats(d$logy)$stats)
       # bs1 <- exp(boxplot.stats(d$logy)$stats)
       
-      bs <- (boxplot.stats(d$logy)$stats)[c(1,3,5)]
-      bs1 <-  exp(boxplot.stats(d$logy)$stats)[c(1,3,5)]
+      bs <- (boxplot.stats(d$logy,coef = rangez)$stats)[c(1,3,5)]
+      bs1 <-  exp(boxplot.stats(d$logy,coef = rangez)$stats)[c(1,3,5)]
       
-      bs0 <- (boxplot.stats(d$logy)$stats)[c(2,4)]
-      bs2 <-  exp(boxplot.stats(d$logy)$stats)[c(2,4)]
+      bs0 <- (boxplot.stats(d$logy,coef = rangez)$stats)[c(2,4)]
+      bs2 <-  exp(boxplot.stats(d$logy,coef = rangez)$stats)[c(2,4)]
       
       boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., horizontal = TRUE, axes = FALSE, staplewex = 1,
               outline=outliers,
               col=terrain.colors(4) [3], range=rangez, width=10,
-              ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale with the box plot stats, N=",input$N ) )
+              ylim=c(log(low),log(up))) #, main=paste("Presenting the same data, but logging the data and with an antilog scale and including the box plot stats, N=",input$N ) )
       #axis(1, at=1:3, labels=xlab.)
        axis(1, at=ticks, labels=labs, las=1)
-      #abline(h=ticks, col="cornsilk2", lty=6)
+      abline(v=(ticks), col="cornsilk2", lty=7)
+      rug(x = log(tickz), ticksize = -0.02, side = 1)
      # text(x = p2(bs), labels = p2(bs1), y = 1.48)
       
       text(x = p2(bs), labels = p2(bs1), y = 1.48)
