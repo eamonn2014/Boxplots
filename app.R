@@ -12,6 +12,7 @@
     p1 <- function(x) {formatC(x, format="f", digits=1)}
     p2 <- function(x) {formatC(x, format="f", digits=2)}
     options(width=100)
+    set.seed(123)
 
     
     # xlabz <- "Experimental Group"
@@ -125,7 +126,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel("Wait...what? But aren't the whiskers different?", value=3, 
-          
+                 div(plotOutput("reg.plot2", width=fig.width, height=fig.height)),  
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -247,7 +248,45 @@ server <- shinyServer(function(input, output   ) {
     
     })
     
-    
+    make.data2 <- reactive({
+      #      
+      sample <- random.sample()
+      
+      #  data1 <- random.sample()
+      # Get the current data
+      #data1 <- make.regression()
+      
+      # rangez <-    data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+      # outliers <-  data1$outliers   
+      n<-          sample$n  
+      # dp<-         data1$dp
+      # 
+      # whisker<-  isolate(input$Whisker )
+      # outliers <- isolate(input$outliers )
+      # n=isolate(input$N )
+      # dp=isolate(input$dp )
+      # 
+      
+      outlierz <- 3 
+      sds <- runif(outlierz,5,9)                          # create the data
+      high1 <- sample(75:99, outlierz-1, replace=T) 
+      high2 <- sample(1:199, outlierz-1, replace=T)       # create v high values
+      high<-c(high1, high2)
+      
+      N<- (n-3)/3
+      mu=15
+      y <- c( abs(rnorm(N,mu,sds[1])) ,high[1] ,  
+              abs(rnorm(N,mu,sds[2])) ,high[2],
+              abs(rnorm(N,mu,sds[1])) ,high[3] )
+      
+      x <- factor(rep(1:3, each=n/3))
+      
+      d <- data.frame(x=x, y=y)
+      d$logy <- log(d$y) # log the data
+      
+      return(list(d=d ))# rangez=rangez, outliers=outliers, n=n, dp=dp))
+      
+    })
     # --------------------------------------------------------------------------
     # --------------------------------------------------------------------------
     # ---------------------------------------------------------------------------
@@ -335,6 +374,151 @@ server <- shinyServer(function(input, output   ) {
         
     })
     #---------------------------------------------------------------------------
+    
+    output$reg.plot2 <- renderPlot({         
+      
+     
+      d <- make.data2()$d
+      
+      rangez <-    input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
+      outliers <-  input$outliers   
+      #n<-          input$n  
+      dp<-         input$dp 
+      
+      ticks=c(log(0.001),log(0.01), log(.1), log(1), log(10), log(100), log(1000))
+      labs <- exp(ticks)
+      
+      ylab. <- " "
+      xlabz  <- "Response"
+      xlab. <- c("Group 1","Group 2","Group 3")
+      
+      par(mfrow=c(2,1))
+      
+      d$x=1   # change
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      bs <- (boxplot.stats(d$y)$stats)[c(1,3,5)]
+      bs1 <-  (boxplot.stats(d$y)$stats)[c(1,3,5)]
+      
+      bs0 <- (boxplot.stats(d$y)$stats)[c(2,4)]
+      bs2 <-  (boxplot.stats(d$y)$stats)[c(2,4)]
+      
+      boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,   horizontal = TRUE, axes = FALSE, staplewex = 1,
+              outline=outliers,
+              col=terrain.colors(4)[3] , range=rangez,  width=10,
+              ylim=c(0,max(d$y)*1.2), main=paste("Presenting the data on untransformed scale with the box plot stats, N=", input$N))
+     # axis(1, at=1:3, labels=xlab.)
+      axis(1,   las=1)
+     # grid(NA, NULL, col="cornsilk2", lty=6)
+      
+      text(x = p2(bs), labels = p2(bs1), y = 1.48)
+      text(x = p2(bs0), labels = p2(bs2), y =  .53)
+      if (dp==1) {
+        
+        
+        cols <-  c(    "purple")
+         
+        # Add data points
+        mylevels <- 1
+        levelProportions <- summary(d$x)/nrow(d)
+        for(i in 1:length(mylevels)){
+          
+          thislevel <- mylevels[i]
+          thisvalues <- d[d$x==thislevel, 'y']
+          library(scales)
+          myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
+          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.4) )   
+          
+        }
+       
+      }
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      if (min(d$y)<0.1) {low=0.01} else {low=0.1}
+      if (max(d$y)>100) {up=1000}  else {up=100}
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # bs <- (boxplot.stats(d$logy)$stats)
+      # bs1 <- exp(boxplot.stats(d$logy)$stats)
+      
+      bs <- (boxplot.stats(d$logy)$stats)[c(1,3,5)]
+      bs1 <-  exp(boxplot.stats(d$logy)$stats)[c(1,3,5)]
+      
+      bs0 <- (boxplot.stats(d$logy)$stats)[c(2,4)]
+      bs2 <-  exp(boxplot.stats(d$logy)$stats)[c(2,4)]
+      
+      boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., horizontal = TRUE, axes = FALSE, staplewex = 1,
+              outline=outliers,
+              col=terrain.colors(4) [3], range=rangez, width=10,
+              ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale with the box plot stats, N=",input$N ) )
+      #axis(1, at=1:3, labels=xlab.)
+       axis(1, at=ticks, labels=labs, las=1)
+      #abline(h=ticks, col="cornsilk2", lty=6)
+     # text(x = p2(bs), labels = p2(bs1), y = 1.48)
+      
+      text(x = p2(bs), labels = p2(bs1), y = 1.48)
+      text(x = p2(bs0), labels = p2(bs2), y =  .53)
+      
+      if (dp==1) {
+        cols <-  c(    "purple")
+        
+        # Add data points
+        mylevels <- 1
+        levelProportions <- summary(d$x)/nrow(d)
+        for(i in 1:length(mylevels)){
+          
+          thislevel <- mylevels[i]
+          thisvalues <- d[d$x==thislevel, 'logy']
+          
+          # take the x-axis indices and add a jitter, proportional to the N in each level
+          myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
+          points( thisvalues, myjitter, pch=20, col = alpha(cols, 0.4) )   
+          #
+        }
+        
+      }
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      
+      par(mfrow=c(1,1))
+      xx <- tapply(d$y, d$x, summary)
+      return(xx=xx)
+      
+    })
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     #--------------------------------------------------------------------------
     #---------------------------------------------------------------------------
     # Plot residuals 
