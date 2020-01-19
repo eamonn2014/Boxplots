@@ -82,7 +82,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
              
           sliderInput("N",
                       "Select the total number of data points",
-                      min=3, max=198, step=3, value=99, ticks=FALSE),
+                      min=3, max=500, step=1, value=100, ticks=FALSE),
           
           sliderInput("Whisker",
                       "Select the length of whiskers (multiples of the IQR)",
@@ -125,10 +125,13 @@ ui <- fluidPage(theme = shinytheme("journal"),
         
         div(plotOutput("reg.plot", width=fig.width, height=fig.height)),  
     
+        
+        h3("Figure 1 Left panel untransformed data, right panel natural log transformation"),
         p(strong("I hope you agree the plot on the right gives a better understanding of the data distributions. 
                  In this programming exercise select 'Show me the data!' and deselect 'Highlight 'outliers''.")) ,
         
-       div( verbatimTextOutput("summary"))  
+       #div( verbatimTextOutput("summary"))  
+       
         
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,11 +158,8 @@ ui <- fluidPage(theme = shinytheme("journal"),
        for n %% 4 == 2 (n = 2 mod 4), and are in the middle of two observations otherwise.")) ,
                   ) ,
        
-       
-       
-       
-
-       
+       tableOutput("table"),
+        
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel(" ", value=3, 
@@ -343,7 +343,7 @@ server <- shinyServer(function(input, output   ) {
       d <- data.frame(x=x, y=y)
       d$logy <- log(d$y) # log the data
       
-      return(list(d=d , rangez=rangez))# rangez=rangez, outliers=outliers, n=n, dp=dp))
+      return(list(d=d , y=d$y, rangez=rangez))# rangez=rangez, outliers=outliers, n=n, dp=dp))
       
     })
     # --------------------------------------------------------------------------
@@ -374,8 +374,12 @@ server <- shinyServer(function(input, output   ) {
         tickz <- unique(c(A,B,C,D,E,FF))
         xlabz <- "Experimental Group"
         ylab. <- "Response"
-        xlab. <- c("Group 1","Group 2","Group 3")
+        xlab. <- c(paste0("\nGroup 1\nn=",table(d$x)[1][[1]],""),
+                   paste0("\nGroup 2\nn=",table(d$x)[2][[1]],""),
+                   paste0("\nGroup 3\nn=",table(d$x)[3][[1]],"")   )
+
        
+         
           par(mfrow=c(1,2))
  
         #  boxplot(d$y ~ d$x)
@@ -384,7 +388,7 @@ server <- shinyServer(function(input, output   ) {
                   outline=outliers,
                    col=terrain.colors(4) , range=rangez,
                    ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) ) 
-         axis(1, at=1:3, labels=xlab.)
+         axis(1, at=1:3, labels=xlab., tick=FALSE)
           axis(2,   las=2)
          # grid(NA, NULL, col="cornsilk2", lty=6)
           panel.first = 
@@ -414,6 +418,20 @@ server <- shinyServer(function(input, output   ) {
 
           }
 
+          # 
+          # nbGroup <- nlevels(d$x)
+          # text( 
+          #   x=c(1:nbGroup), 
+          #   y=    -1.5,#min(d$y)-2 ,#          $stats[nrow(boundaries$stats),] + 0.5,   
+          #   paste("n = ",table(d$x),sep="")  
+          # )
+          
+          
+          
+          
+          
+          
+          
           }
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           if (min(d$y)<0.1) {
@@ -435,7 +453,7 @@ server <- shinyServer(function(input, output   ) {
                   outline=outliers,
                   col=terrain.colors(4) , range=rangez,
                   ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",input$N) )
-          axis(1, at=1:3, labels=xlab.)
+          axis(1, at=1:3, labels=xlab., tick=FALSE)
           axis(2, at=ticks, labels=labs, las=2)
           #abline(h=ticks, col="cornsilk2", lty=6)
           
@@ -450,7 +468,7 @@ server <- shinyServer(function(input, output   ) {
                   ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",input$N) )
           
           
-          
+         # rug(x = 1:3, ticksize = 0.01, side = 1)  #ticks above line
           rug(x = log(tickz), ticksize = -0.01, side = 2)
           if (dp==1) {
           # Add data points
@@ -466,13 +484,22 @@ server <- shinyServer(function(input, output   ) {
             points(myjitter, thisvalues, pch=20, col=rgb(0,0,0,.9))
           #
           }
+          
+          # nbGroup <- nlevels(d$x)
+          # text( 
+          #   x=c(1:nbGroup), 
+          #   y=    log(low) ,#          $stats[nrow(boundaries$stats),] + 0.5,   
+          #   paste("n = ",table(d$x),sep="")  
+          # )
+          
+          #title(sub="hallo", adj=1, line=3, font=2)
 
           }
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
-          par(mfrow=c(1,1))
-          xx <- tapply(d$y, d$x, summary)
-          return(xx=xx)
+          # par(mfrow=c(1,1))
+          # xx <- tapply(d$y, d$x, summary)
+          # return(xx=xx)
         
     })
     #---------------------------------------------------------------------------
@@ -617,9 +644,9 @@ server <- shinyServer(function(input, output   ) {
       }
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       
-      par(mfrow=c(1,1))
-      xx <- tapply(d$y, d$x, summary)
-      return(xx=xx)
+   #   par(mfrow=c(1,1))
+    #  xx <- tapply(d$y, d$x, summary)
+     # return(d=d)
       
     })
     
@@ -627,31 +654,23 @@ server <- shinyServer(function(input, output   ) {
     
     
     
+    output$table<- renderPrint({  
     
     
+       make.data2()$y
+      
+     # summary(d)
+      
+    })
+    
+     
+    
+    # output$table <- renderTable({
+    #   t1()$resid
+    # })
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+ 
     
     
     
