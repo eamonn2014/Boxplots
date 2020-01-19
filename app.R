@@ -89,15 +89,15 @@ ui <- fluidPage(theme = shinytheme("journal"),
           
           div(p("References:")),  
           
-          tags$a(href = "https://en.wikipedia.org/wiki/Exploratory_data_analysis", "Tukey, J.W. 'Exploratory Data Analysis' [1]  "),
+          tags$a(href = "https://en.wikipedia.org/wiki/Exploratory_data_analysis", "[1] Tukey, J.W. 'Exploratory Data Analysis'"),
           div(p(" ")),
-          tags$a(href = "https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/boxplot", "R boxplot [2]"),
+          tags$a(href = "https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/boxplot", "[2] R boxplot"),
           div(p(" ")),
-          tags$a(href = "https://en.wikipedia.org/wiki/Anscombe%27s_quartet", "Anscomb's quartet [3]"),
+          tags$a(href = "https://en.wikipedia.org/wiki/Anscombe%27s_quartet", "[3] Anscombe's quartet"),
           div(p(" ")),
-          tags$a(href = "https://ggplot2.tidyverse.org/reference/geom_boxplot.html", "Boxplots using ggplot2 [4]"),
+          tags$a(href = "https://ggplot2.tidyverse.org/reference/geom_boxplot.html", "[4] Boxplots using ggplot2"),
           div(p(" ")),
-          tags$a(href = "https://r.789695.n4.nabble.com/Whiskers-on-the-default-boxplot-graphics-td2195503.html", "Whiskers on the default boxplot [5]"),
+          tags$a(href = "https://r.789695.n4.nabble.com/Whiskers-on-the-default-boxplot-graphics-td2195503.html", "[5] Whiskers on the default boxplot"),
           div(p(" ")),
           
                )
