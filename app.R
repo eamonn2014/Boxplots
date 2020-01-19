@@ -547,7 +547,7 @@ server <- shinyServer(function(input, output   ) {
        f <- as.matrix(f);
        f <-p2(f)
        f <- as.numeric(f)
-       f<-(p2(f))
+      # f<-(p2(f))
        f<-as.data.frame(t(f))
        names(f ) <- c("Minimum", "1st.Quartile", "Median", "Mean", "3rd.Quartile", "Maximum")
       
@@ -576,7 +576,7 @@ server <- shinyServer(function(input, output   ) {
       
       f <- summary(dd$logy)
       f <- as.matrix(f);
-      f <-p2(f)
+    # f <-p2(f)
       f <- exp(as.numeric(f))
       f<-(p2(f))
       f<-as.data.frame(t(f))
