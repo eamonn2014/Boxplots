@@ -19,7 +19,7 @@
     p1 <- function(x) {formatC(x, format="f", digits=1)}
     p2 <- function(x) {formatC(x, format="f", digits=2)}
     options(width=100)
-    set.seed(12345)
+    set.seed(12345) #reproducible
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
