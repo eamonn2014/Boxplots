@@ -131,7 +131,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         
         h3("Figure 1 Left panel untransformed data, right panel natural log transformation labelled with antilogs"),
         
-        p(strong("Boxplots are simple graphical characterisations of continuous variable. 
+        p(strong("Boxplots are simple graphical characterisations of continuous variables. 
         Boxplots were proposed by Tukey, J.W. in his 1977 book 'Exploratory Data Analysis' (only in 1977!).
                   In this example, we re-express the data using a natural logarithmic transformation.
                   Next, prior to presentation, perform the boxplot calculations. So first, perform the natural
@@ -154,38 +154,41 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  div(plotOutput("reg.plot2", width=fig.width, height=fig.height)),  
                  h3("Figure 2 Top panel untransformed data, bottom panel using a natural log transformation"),
                  
-                 h4("Lets first look at the relationship between the hinges and quartiles.") ,
+                 h4("Lets first look at the relationship between the hinges vrs. quartiles.") ,
                  p(strong("Boxplot stats for the untransformed data, as presented in the top panel:")) ,
                  div( verbatimTextOutput("table2")),
                  p(strong("Now summarise the same data. Q1 and Q3 may not match the hinges. Paraphrasing the 'box.plot.stats' help file...'The ‘hinges’ are versions of Q1 and Q3'. See what happens when n is odd. The hinges and the quartiles match.")) ,
                  div( verbatimTextOutput("table3")),
                  
-                 p(strong("Now check out the boxplot stats based on the log transformed data, after exponentiating (bottom panel):")) ,
+                 p(strong("Now check out the boxplot stats based on the log transformed data, after exponentiating (bottom panel), check with the raw median:")) ,
                  div( verbatimTextOutput("table4")),
-                 p(strong("In the same way summarise the log transformed data then exponentiating to give:")) ,
+                 p(strong("In the same way summarise the log transformed data then exponentiating: ")) ,
                  div( verbatimTextOutput("table5")),
                  #p(strong("Take home message, the hinges may not necessarily equal Q1 and Q3.")) ,
                  h4("Look again at how to calculate the boxplot statistics when transforming") ,
                  
-                 p(strong("The length of the whiskers is typically set at 1.5 IQR, that is the 
+                 p(strong("The length of the whiskers is typically set at 1.5xIQR, that is, the 
                  whiskers extend to the most extreme data point which is no more than 1.5 times the interquartile 
-                 range from the box. A value of zero causes the whiskers to extend to the data extremes. 
-                          So it may not be as simple as saying the whiskers extend  1.5 IQR.")),
+                 range from the box. A value of zero, using the R function, causes the whiskers to extend to the data extremes. 
+                          So it may not be as simple as saying the whiskers extend 1.5xIQR.")),
                  
                  
                  div(""),
                  
-                 p(strong("To summarise, apply the whisker calculation rule on the scale used to draw the boxplot. When using a transformation therefore the calculations must 
-                 be on the transformed scale. Do not mix scales. It would be wrong to calculate the whiskers based on the 1.5xIQR rule on the raw scale and then log transform 
-                          to present the boxplot. 
-                          The median and hinges will be the logs of the original median and hinges, the step which determines the length of the whiskers will change. 
-                          (The location of the end of the whiskers is often referred to as the fences). This is different than merely drawing the original boxplot
-                          on a logarithmic scale")) ,
+                 p(strong("To summarise, apply the whisker calculation rule on the scale used to draw the boxplot. Therefore when using a transformation 
+                 the calculations must 
+                 be on the transformed scale. Do not mix scales. So, do not calculate the whiskers based on the 1.5xIQR rule
+                 on the raw scale and then log transform 
+                          to present the boxplot.  
+                          The median and hinges will be the logs of the original median and hinges, they will match with odd sample sizes, but not generally with even. 
+                          The step which determines the length of the whiskers will change. Hence the fences generally will differ. 
+                          (The location of the end of the whiskers is referred to as the fences). ")) ,
         
                  
                  p(strong("")),
-                 h3("Take home messages; the hinges may not necessarily equal Q1 and Q3, The fences may not necessarily be located at multiples from the hinges. 
-                    The fences of transformed data may not necessarily equal the fences on the raw scale. Explicitly state how you constructed your boxplots.")
+                 h3("Take home messages; when the sample size is odd, the hinges may not necessarily equal Q1 and Q3 (raw and transformed) and the transformed median may be slightly different to the raw median.
+                      The fences may not necessarily equal the fences on the raw scale for any sample size.
+                    Explicitly state how you constructed your boxplots.")
                                   ) ,
   
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -532,7 +535,7 @@ server <- shinyServer(function(input, output   ) {
       rangez <-    input$Whisker 
       
       bs <- boxplot.stats(dd$y, coef = rangez, do.conf = FALSE, do.out = FALSE)$stats
-      bs <- as.numeric(p2(as.vector(bs)))
+      bs <- as.numeric((as.vector(bs))) #p2
       names(bs ) <- c("Lower whisker", "Lower ‘hinge’", "Median", "Upper ‘hinge’" ,"Upper whisker")
  
       return(  print(bs, row.names = FALSE)) 
@@ -543,14 +546,15 @@ server <- shinyServer(function(input, output   ) {
       
       dd <-  make.data2()$d 
       
-       f <- summary(dd$y)
+       f <- summary(dd$y)[c(2,3,5)]
        f <- as.matrix(f);
-       f <-p2(f)
+       #f <-p2(f)   # here
        f <- as.numeric(f)
       # f<-(p2(f))
        f<-as.data.frame(t(f))
-       names(f ) <- c("Minimum", "1st.Quartile", "Median", "Mean", "3rd.Quartile", "Maximum")
-      
+   #    names(f ) <- c("Minimum", "1st.Quartile", "Median", "Mean", "3rd.Quartile", "Maximum")
+       names(f ) <- c( "1st.Quartile", "Median",  "3rd.Quartile")
+       
      return( print(f, row.names = FALSE)) 
       
     })
@@ -563,7 +567,7 @@ server <- shinyServer(function(input, output   ) {
       rangez <-    input$Whisker 
       
       bs <- boxplot.stats(dd$logy, coef = rangez, do.conf = FALSE, do.out = FALSE)$stats
-      bs <- as.numeric(p2(as.vector(exp(bs))))
+      bs <- as.numeric((as.vector(exp(bs))))  #p2
       names(bs ) <- c("Lower whisker", "Lower ‘hinge’", "Median", "Upper ‘hinge’" ,"Upper whisker")
       
       return(  print(bs, row.names = FALSE)) 
@@ -574,14 +578,14 @@ server <- shinyServer(function(input, output   ) {
       
       dd <-  make.data2()$d 
       
-      f <- summary(dd$logy)
+      f <- summary(dd$logy)[c(2,3,5)]
       f <- as.matrix(f);
     # f <-p2(f)
       f <- exp(as.numeric(f))
-      f<-(p2(f))
+    #  f<-(p2(f))
       f<-as.data.frame(t(f))
-      names(f ) <- c("Minimum", "1st.Quartile", "Median", "Mean", "3rd.Quartile", "Maximum")
-      
+     # names(f ) <- c("Minimum", "1st.Quartile", "Median", "Mean", "3rd.Quartile", "Maximum")
+      names(f ) <- c( "1st.Quartile", "Median",  "3rd.Quartile")
       return( print(f, row.names = FALSE)) 
 
     })
