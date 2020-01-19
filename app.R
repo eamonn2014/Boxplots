@@ -97,7 +97,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
           div(p(" ")),
           tags$a(href = "https://ggplot2.tidyverse.org/reference/geom_boxplot.html", "Boxplots using ggplot2 [4]"),
           div(p(" ")),
-          tags$a(href = "https://r.789695.n4.nabble.com/Whiskers-on-the-default-boxplot-graphics-td2195503.html", "Whiskers on the default boxplot [5] "),
+          tags$a(href = "https://r.789695.n4.nabble.com/Whiskers-on-the-default-boxplot-graphics-td2195503.html", "Whiskers on the default boxplot [5]"),
           div(p(" ")),
           
                )
@@ -164,7 +164,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  div( verbatimTextOutput("table4")),
                  p(strong("In the same way summarise the log transformed data then exponentiating: ")) ,
                  div( verbatimTextOutput("table5")),
-                 #p(strong("Take home message, the hinges may not necessarily equal Q1 and Q3.")) ,
+               
                  h4("Look again at how to calculate the boxplot statistics when transforming") ,
                  
                  p(strong("The length of the whiskers is typically set at 1.5xIQR, that is, the 
