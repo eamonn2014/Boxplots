@@ -40,14 +40,14 @@ ui <- fluidPage(theme = shinytheme("journal"),
    
     sidebarPanel( 
      
-        div(p("This is a simple app to show the benefits of using a transformation on skewed data when plotting.
+        div(p("This is a simple app to show the benefits of using a transformation on skewed data when plotting, specifically using boxplots [1].
         Imagine randomly allocating subjects to 3 groups, treating them differently and then comparing them with 
         respect to a measured laboratory response. Laboratory tests quantify the presence of analytes and 
         therefore we do not expect negative values. 
               Very often the data will be skewed, with a minority of very high values. 
               Therefore transforming the data often proves beneficial for visualisation.
               We fabricate data with the majority of values near zero and a few comparitively very high values.
-              Here we use base R boxplots. When we select 'Show me the data!' we present all the data and add random noise 
+              Here we use base R boxplots [2]. When we select 'Show me the data!' we present all the data and add random noise 
               to shift all the data points for better visualisation. ")),
         
         div(
@@ -66,15 +66,15 @@ ui <- fluidPage(theme = shinytheme("journal"),
 
             
             div(("Both the number of data points and the length of the whiskers can be varied. 
-                 The default whisker length is 1.5xIQR extending below Q1 and above Q3. Selecting zero will 
-                 extend the whiskers to the maximum and minimum.
+                 The default whisker length uses the common 1.5xIQR rule. Selecting zero will 
+                 extend the whiskers to the extreme datapoints.
                  There is the option to show all the data on the plot 'Show me the data!'. 
                  Could you guess what the data would look like?
-                 No, the same boxplot can be constructed from many different data sets. 
-                 Therefore if possible and feasible also plot the raw data. There is also the option
-                 to 'Highlight 'outliers'', that is include the 'outliers'. Be careful as plotting the raw data also will double up the 'outlying'
-                 data points. Therefore if you are programming boxplots and showing the raw data, turn off the 
-                 outlier option. This advice is also pertinent if generating boxplots using the ggplot2 package.
+                 Unlikely, it is possible the same boxplot can be constructed from many different data sets [3].
+                 Therefore if possible and feasible also plot all the data points. There is also the option
+                 to 'Highlight 'outliers'', that is present the 'outliers'. Be careful as plotting the individual data points also will double up the 'outlying'
+                 data points. Therefore if you are programming boxplots and showing the individual data, turn off the 
+                 outlier option. This advice is also pertinent if generating boxplots using the ggplot2 package [4].
                  Another sample can be taken from the same data generating mechanism by clicking 'Simulate a new sample'.")),
             br(),
           
@@ -96,8 +96,22 @@ ui <- fluidPage(theme = shinytheme("journal"),
                       "Show me the data!",
                       min=0, max=1, step=1, value=1, ticks=FALSE),
           
-            
+          div(p("References:")),  
+          
+          tags$a(href = "https://en.wikipedia.org/wiki/Exploratory_data_analysis", "Tukey, J.W. 'Exploratory Data Analysis' [1]  "),
+          div(p(" ")),
+          tags$a(href = "https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/boxplot", "R boxplot [2]"),
+          div(p(" ")),
+          tags$a(href = "https://en.wikipedia.org/wiki/Anscombe%27s_quartet", "Anscomb's quartet [3]"),
+          div(p(" ")),
+          tags$a(href = "https://ggplot2.tidyverse.org/reference/geom_boxplot.html", "Boxplots using ggplot2 [4]"),
+          div(p(" ")),
+          tags$a(href = "https://r.789695.n4.nabble.com/Whiskers-on-the-default-boxplot-graphics-td2195503.html", "Whiskers on the default boxplot [6]"),
+          div(p(" ")),
+          
                )
+      
+      
     ),
     
      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~tab panels
@@ -134,13 +148,13 @@ ui <- fluidPage(theme = shinytheme("journal"),
                   Next, prior to presentation, perform the boxplot calculations. So first, perform the natural
                   log transformation on the data. Secondly create a boxplot, 
                   that is calculate the median, the two hinges and the whiskers. 
-                  Next, we plot the boxplot, and finally replace the axis log values with the antilog values.")) ,
+                  Then we present the boxplot, finally replace the axis log values with the antilog values.")) ,
                   
                    
                   p(strong("There are subtlties in the boxplot calculations.
                   Often you may hear it is said, 'the limits of the boxes represent Q1 and Q3 and the 
                   whiskers extend +/- 1.5 x Q3-Q1'. 
-                  This is not nessarily true. There are many variations on the box plot, it is therefore better to explicitly state what is being presented.")) ,
+                  This is not necessarily true. There are many variations on the box plot, it is therefore better to explicitly state what is being presented.")) ,
         div(""),
         p(strong("I hope you agree the plot on the right gives a better understanding of the data distributions. 
                  In this programming exercise select 'Show me the data!' and deselect 'Highlight 'outliers''.")) ,
@@ -151,20 +165,20 @@ ui <- fluidPage(theme = shinytheme("journal"),
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel("Wait...what? Aren't the whiskers different?", value=3, 
                  div(plotOutput("reg.plot2", width=fig.width, height=fig.height)),  
-                 h3("Figure 2 Ignoring grouping, top panel untransformed data, bottom panel using natural log transformation"),
+                 h3("Figure 2 Top panel untransformed data, bottom panel using a natural log transformation"),
                  
                  h4("Lets first look at the relationship between the hinges and quartiles.") ,
-                 p(strong("Boxplot stats for the untransformed data, as present in top panel:")) ,
+                 p(strong("Boxplot stats for the untransformed data, as presented in the top panel:")) ,
                  div( verbatimTextOutput("table2")),
                  p(strong("Now summarise the same data. Q1 and Q3 may not match the hinges. Paraphrasing the 'box.plot.stats' help file...'The ‘hinges’ are versions of Q1 and Q3'. See what happens when n is odd. The hinges and the quartiles match.")) ,
                  div( verbatimTextOutput("table3")),
                  
-                 p(strong("Now check out the boxplot stats on the log transformed data, before exponentiating (bottom panel):")) ,
+                 p(strong("Now check out the boxplot stats based on the log transformed data, after exponentiating (bottom panel):")) ,
                  div( verbatimTextOutput("table4")),
-                 p(strong("In the same way summarise the log transformed data before exponentiating:")) ,
+                 p(strong("In the same way summarise the log transformed data then exponentiating to give:")) ,
                  div( verbatimTextOutput("table5")),
-                 
-                 h4("Lets look at the whiskers.") ,
+                 #p(strong("Take home message, the hinges may not necessarily equal Q1 and Q3.")) ,
+                 h4("Look again at how to calculate the boxplot statistics when transforming") ,
                  
                  p(strong("The length of the whiskers is typically set at 1.5 IQR, that is the 
                  whiskers extend to the most extreme data point which is no more than 1.5 times the interquartile 
@@ -172,21 +186,20 @@ ui <- fluidPage(theme = shinytheme("journal"),
                           So it may not be as simple as saying the whiskers extend  1.5 IQR.")),
                  
                  
-  
+                 div(""),
                  
-                 h4("Look again at how to calculate the boxplot statistics when transforming") ,
-                 
-                 p(strong("Apply the whisker calcualtion rule on the scale used to draw the box plots. So when using a transformation the calculations must be on that scale. 
-                 That is, scales should not be mixed, that is it would be wrong to calculate the whiskers based on 1.5 IQR rule on the raw scale and then log transform 
-                          to plor the boxplot. The medians and hinges will be the logs of the original medians and hinges, the step (which determines the fences)
-                 will change. 
-                 That is different than merely drawing the original boxplot on a logarithmic scale")) ,
+                 p(strong("To summarise, apply the whisker calculation rule on the scale used to draw the boxplot. When using a transformation therefore the calculations must 
+                 be on the transformed scale. Do not mix scales. It would be wrong to calculate the whiskers based on the 1.5xIQR rule on the raw scale and then log transform 
+                          to present the boxplot. 
+                          The median and hinges will be the logs of the original median and hinges, the step which determines the length of the whiskers will change. 
+                          (The location of the end of the whiskers is often referred to as the fences). This is different than merely drawing the original boxplot
+                          on a logarithmic scale")) ,
         
                  
                  p(strong("")),
-                 
-                
-                  ) ,
+                 h3("Take home messages; the hinges may not necessarily equal Q1 and Q3, The fences may not necessarily be located at multiples from the hinges. 
+                    The fences of transformed data may not necessarily equal the fences on the raw scale. Explicitly state how you constructed your boxplots.")
+                                  ) ,
        
       # tableOutput("table"),
       # div( verbatimTextOutput("table2")),
