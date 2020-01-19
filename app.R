@@ -77,7 +77,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
           
           sliderInput("Whisker",
                       "Select the length of whiskers (multiples of the IQR)",
-                      min=0, max=3, step=.5, value=1.5, ticks=FALSE),
+                      min=0, max=3, step=.5, value=1.5, ticks=TRUE),
           
           sliderInput("outliers",
                       "Highlight 'outliers'",
