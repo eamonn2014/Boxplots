@@ -50,7 +50,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
        
        
           actionButton(inputId='ab1', label="R code",   icon = icon("th"), 
-                       onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/One-way-ANOVA/master/app.R', '_blank')"),   
+                       onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/Boxplots/master/app.R', '_blank')"),   
           actionButton("resample", "Simulate a new sample"),
           br(), br(),
           
@@ -270,7 +270,6 @@ server <- shinyServer(function(input, output   ) {
        
        rangez <-    input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
        outliers <-  input$outliers   
-       #n<-          input$n  
        dp<-         input$dp 
       
         ticks=c(log(0.001),log(0.01), log(.1), log(1), log(10), log(100), log(1000))
@@ -391,7 +390,6 @@ server <- shinyServer(function(input, output   ) {
      # rangez <- make.data2()$rangez
       
       outliers <-  input$outliers   
-      #n<-          input$n  
       dp<-         input$dp 
       
       A <-seq(from=0.001, to= 0.01, by=0.001)
@@ -468,9 +466,7 @@ server <- shinyServer(function(input, output   ) {
       
       if (max(d$y)>100) {up=1000}  else {up=100}
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      # bs <- (boxplot.stats(d$logy)$stats)
-      # bs1 <- exp(boxplot.stats(d$logy)$stats)
-      
+ 
       bs <- (boxplot.stats(d$logy,coef = rangez)$stats)[c(1,3,5)]
       bs1 <-  exp(boxplot.stats(d$logy,coef = rangez)$stats)[c(1,3,5)]
       
