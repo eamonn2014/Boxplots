@@ -21,11 +21,7 @@
     options(width=100)
     set.seed(12345)
 
-    
-    # xlabz <- "Experimental Group"
-    # ylab. <- "Response"
-    # xlab. <- c("Group 1","Group 2","Group 3")
-    
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ui <- fluidPage(theme = shinytheme("journal"),
              
@@ -33,7 +29,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
 
 #ui <-shinyUI(pageWithSidebar(
     
-    headerPanel("Plotting on the log scale but labelling with antilogs"),
+    headerPanel("Presenting boxplots on a transformed scale"),
     
     #sidebarLayout(  #new
       # Sidebar with a slider and selection inputs
@@ -52,10 +48,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         
         div(
        
-         
-      #    br(),
-          
-         # actionButton("do", "Click Me"),
+       
           actionButton(inputId='ab1', label="R code",   icon = icon("th"), 
                        onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/One-way-ANOVA/master/app.R', '_blank')"),   
           actionButton("resample", "Simulate a new sample"),
@@ -78,8 +71,6 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  Another sample can be taken from the same data generating mechanism by clicking 'Simulate a new sample'.")),
             br(),
           
-       
-             
           sliderInput("N",
                       "Select the total number of data points",
                       min=3, max=500, step=1, value=100, ticks=FALSE),
@@ -110,13 +101,11 @@ ui <- fluidPage(theme = shinytheme("journal"),
           div(p(" ")),
           
                )
-      
-      
+
     ),
     
      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~tab panels
       mainPanel(
-        
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #    tabsetPanel(type = "tabs", 
       navbarPage(       
@@ -158,8 +147,6 @@ ui <- fluidPage(theme = shinytheme("journal"),
         div(""),
         p(strong("I hope you agree the plot on the right gives a better understanding of the data distributions. 
                  In this programming exercise select 'Show me the data!' and deselect 'Highlight 'outliers''.")) ,
-        
-
 
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -200,10 +187,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  h3("Take home messages; the hinges may not necessarily equal Q1 and Q3, The fences may not necessarily be located at multiples from the hinges. 
                     The fences of transformed data may not necessarily equal the fences on the raw scale. Explicitly state how you constructed your boxplots.")
                                   ) ,
-       
-      # tableOutput("table"),
-      # div( verbatimTextOutput("table2")),
-      # div( verbatimTextOutput("table3")),
+  
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel("The data", value=3, 
@@ -211,14 +195,9 @@ ui <- fluidPage(theme = shinytheme("journal"),
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel(" ", 
-
-            #     div(plotOutput("residual", width=1200, height=800)) ,
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel(" ", 
-                 
-        #   div( verbatimTextOutput("summary2")),
-
         )
        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         )
@@ -230,111 +209,33 @@ ui <- fluidPage(theme = shinytheme("journal"),
   )
 )
 
-
-
 server <- shinyServer(function(input, output   ) {
-    
- #  observeEvent(input$do, {
- #    
- #    
- #    random.sample <- reactive({
- #      
- #  
- # foo <- input$resample
- #    
- # 
- #    })
- #    
- #    
- #  })
- #  
-  
-  # checkedGroups <- eventReactive(input$goButton, {input$checkgroup})
+
+
     # --------------------------------------------------------------------------
-    # This is where a new sample is instigated only random noise is required to be generated
+    # This is where a new sample is instigated 
     random.sample <- reactive({
 
-        # Dummy line to trigger off button-press
+    # Dummy line to trigger off button-press
      foo <- input$resample
      Whisker<-   isolate(input$Whisker )
      outliers <- isolate(input$outliers )
      n=(input$N )
      dp=isolate(input$dp )
      
-      #  whisker <- input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-      # outliers <- input$outliers     # show or hide
-    #    n <- input$N                   # divisible by 3
-       # dp<- input$dp                  # show or hide data points
-
      return(list( n=n ,  Whisker=Whisker , outliers=outliers, dp=dp )) 
 
     })
-    
-    # --------------------------------------------------------------------------
-    # Set up the dataset based on the inputs 
-    # make.regression <- reactive({
-    #      
-    #     sample <- random.sample()
-    #     
-    #     whisker <- sample$whisker        
-    #   #  outlier#s <- sample$outliers   
-    #     n <- sample$n   
-    #    # dp<- sample$dp   
-    #     
-    #     return(list(   n=n,  whisker=whisker ))#, outliers=outliers, dp=dp   ))
-    #     
-    # })  
+
     
     make.data <- reactive({
-      #      
+             
      sample <- random.sample()
-    
-  #  data1 <- random.sample()
-    # Get the current data
-    #data1 <- make.regression()
-    
-    # rangez <-    data1$whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-    # outliers <-  data1$outliers   
-  n<-          sample$n  
-    # dp<-         data1$dp
-     # 
-     # whisker<-  isolate(input$Whisker )
-     # outliers <- isolate(input$outliers )
-     # n=isolate(input$N )
-     # dp=isolate(input$dp )
-     # 
-    
-    outlierz <- 3 
-    sds <- runif(outlierz,5,9)                          # create the data
-    high1 <- sample(75:99, outlierz-1, replace=T) 
-    high2 <- sample(1:199, outlierz-1, replace=T)       # create v high values
-    high<-c(high1, high2)
-    
-    N<- (n-3)/3
-    y <- c( abs(rnorm(N,2,sds[1])) ,high[1] ,  
-            abs(rnorm(N,2,sds[2])) ,high[2],
-            abs(rnorm(N,2,sds[1])) ,high[3] )
-    
-    x <- factor(rep(1:3, each=n/3))
-    
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    #y <- rgeom(n, .01)# rexp(n, .02)
-    y <- rlnorm(n, .7, 1.5)# rexp(n, .02)
-    
-  # y <- sort(round(y))
+     n<-  sample$n  
+
+    y <- rlnorm(n, .7, 1.5) 
     x <- factor(sample(3, length(y), repl = TRUE))
- 
-    #split( y , sample(3, length(y) , repl = TRUE) )
-    
-    #is.even <- function(x){ x %% 2 == 0 }
-    
-    
-    
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    
-    
-    
-    
+  
     d <- data.frame(x=x, y=y)
     d$logy <- log(d$y) # log the data
     
@@ -343,51 +244,18 @@ server <- shinyServer(function(input, output   ) {
     })
     
     make.data2 <- reactive({
-      #      
+   
       sample <- random.sample()
-      
-      #  data1 <- random.sample()
-      # Get the current data
-      #data1 <- make.regression()
-      
       rangez <-    sample$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
-      # outliers <-  data1$outliers   
       n<-          sample$n  
-      # dp<-         data1$dp
-      # 
-      # whisker<-  isolate(input$Whisker )
-      # outliers <- isolate(input$outliers )
-      # n=isolate(input$N )
-      # dp=isolate(input$dp )
-      # 
-      
-      outlierz <- 3 
-      sds <- runif(outlierz,5,9)                          # create the data
-      high1 <- sample(75:99, outlierz-1, replace=T) 
-      high2 <- sample(1:199, outlierz-1, replace=T)       # create v high values
-      high<-c(high1, high2)
-      
-      N<- (n-3)/3
-      mu=15
-      y <- c( abs(rnorm(N,mu,sds[1])) ,high[1] ,  
-              abs(rnorm(N,mu,sds[2])) ,high[2],
-              abs(rnorm(N,mu,sds[1])) ,high[3] )
-      
-      x <- factor(rep(1:3, each=n/3))
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     
-     #y <- c(abs(rnorm(n-4,1,29)), sample(50:150,4, replace=FALSE))# c(rchisq(n/2,.8)*3+1 rf(n, 123,2)  #rlnorm(n, .8, 1.5)# r rlnorm(n, .9, 1.9)#   rlnorm(n, .1, 0.3)#rexp(n, .09)
-       #y <- sort(round(y))
-     
-    # y<- abs(rcauchy(n, location =1, scale = 1))*10+3 #rlnorm(n, );x<-5.2*(x-mean(x))/sd(x)+102
-     
-     y<- c(rbeta(n-4, 2,6)*35,  sample(50:150,4, replace=FALSE))
-     x <- factor(sample(3, length(y), repl = TRUE))
+
+      y<- c(rbeta(n-4, 2,6)*35,  sample(50:150,4, replace=FALSE))
+      x <- factor(sample(3, length(y), repl = TRUE))
       
       d <- data.frame(x=x, y=y)
       d$logy <- log(d$y) # log the data
       
-      return(list(d=d , y=d$y, rangez=rangez))# rangez=rangez, outliers=outliers, n=n, dp=dp))
+      return(list(d=d , y=d$y, rangez=rangez))# 
       
     })
     # --------------------------------------------------------------------------
@@ -423,12 +291,9 @@ server <- shinyServer(function(input, output   ) {
                    paste0("\nGroup 3\nn=",table(d$x)[3][[1]],"")   )
 
        
-         
           par(mfrow=c(1,2))
- 
-        #  boxplot(d$y ~ d$x)
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., #log="y",
+          boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., 
                   outline=outliers,
                    col=terrain.colors(4) , range=rangez,
                    ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) ) 
@@ -438,11 +303,10 @@ server <- shinyServer(function(input, output   ) {
           panel.first = 
             c(grid(NA, NULL, col="cornsilk2", lty=6))
 
-          
-          
+
           par(new=TRUE) #repeating
           
-          boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., #log="y",
+          boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
                   outline=outliers,
                   col=terrain.colors(4) , range=rangez,
                   ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) ) 
@@ -461,21 +325,8 @@ server <- shinyServer(function(input, output   ) {
             points(myjitter, thisvalues, pch=20, col=rgb(0,0,0,.9))
 
           }
+      
 
-          # 
-          # nbGroup <- nlevels(d$x)
-          # text( 
-          #   x=c(1:nbGroup), 
-          #   y=    -1.5,#min(d$y)-2 ,#          $stats[nrow(boundaries$stats),] + 0.5,   
-          #   paste("n = ",table(d$x),sep="")  
-          # )
-          
-          
-          
-          
-          
-          
-          
           }
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           if (min(d$y)<0.1) {
@@ -488,9 +339,7 @@ server <- shinyServer(function(input, output   ) {
               tickz <- unique(c( C,D,E,FF))
               }
           
-          
           if (max(d$y)>100) {up=1000}  else {up=100}
-          
           
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
@@ -503,7 +352,6 @@ server <- shinyServer(function(input, output   ) {
           
           panel.first = 
             c( abline(h=ticks, col="cornsilk2", lty=6))
-          
           
           par(new=TRUE) #repeating so grid lines are ar back
           boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
@@ -528,29 +376,15 @@ server <- shinyServer(function(input, output   ) {
             points(myjitter, thisvalues, pch=20, col=rgb(0,0,0,.9))
           #
           }
-          
-          # nbGroup <- nlevels(d$x)
-          # text( 
-          #   x=c(1:nbGroup), 
-          #   y=    log(low) ,#          $stats[nrow(boundaries$stats),] + 0.5,   
-          #   paste("n = ",table(d$x),sep="")  
-          # )
-          
-          #title(sub="hallo", adj=1, line=3, font=2)
-
+       
           }
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
-          # par(mfrow=c(1,1))
-          # xx <- tapply(d$y, d$x, summary)
-          # return(xx=xx)
-        
+       
     })
     #---------------------------------------------------------------------------
     
     output$reg.plot2 <- renderPlot({         
       
-     
       d <- make.data2()$d
       
      rangez <-    input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
@@ -604,7 +438,6 @@ server <- shinyServer(function(input, output   ) {
               ylim=c(0,max(d$y)*1.2), 
               main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
       
-      
       if (dp==1) {
         cols <-  c(    "purple")
          
@@ -647,8 +480,7 @@ server <- shinyServer(function(input, output   ) {
       boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., horizontal = TRUE, axes = FALSE, staplewex = 1,
               outline=outliers,
               col=terrain.colors(4) [3], range=rangez, width=10,
-              ylim=c(log(low),log(up))) #, main=paste("Presenting the same data, but logging the data and with an antilog scale and including the box plot stats, N=",input$N ) )
-      #axis(1, at=1:3, labels=xlab.)
+              ylim=c(log(low),log(up))) 
        axis(1, at=ticks, labels=labs, las=1)
       abline(v=(ticks), col="cornsilk2", lty=7)
       rug(x = log(tickz), ticksize = -0.02, side = 1)
@@ -657,16 +489,12 @@ server <- shinyServer(function(input, output   ) {
       text(x = p2(bs), labels = p2(bs1), y = 1.48)
       text(x = p2(bs0), labels = p2(bs2), y =  .53)
       
-      
       par(new=TRUE)
       
       boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., horizontal = TRUE, axes = FALSE, staplewex = 1,
               outline=outliers,
               col=terrain.colors(4) [3], range=rangez, width=10,
-              ylim=c(log(low),log(up))) #, main=paste("Presenting the same data, but logging the data and with an antilog scale and including the box plot stats, N=",input$N ) )
-      
-      
-      
+              ylim=c(log(low),log(up))) 
       
       if (dp==1) {
         cols <-  c(    "purple")
@@ -679,7 +507,7 @@ server <- shinyServer(function(input, output   ) {
           thislevel <- mylevels[i]
           thisvalues <- d[d$x==thislevel, 'logy']
 
-          # take the x-axis indices and add a jitter, proportional to the N in each level
+         # take the x-axis indices and add a jitter, proportional to the N in each level
          # myjitter <- jitter(rep(i, length(thisvalues)), amount=levelProportions[i]*30)
           points( thisvalues, myjitter, pch=1, col = alpha(cols, 0.8) )   
           #
@@ -688,20 +516,14 @@ server <- shinyServer(function(input, output   ) {
       }
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       
-   #   par(mfrow=c(1,1))
-    #  xx <- tapply(d$y, d$x, summary)
-     # return(d=d)
-      
     })
-    
-    
-    
+ 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-    # lsting of simulated data
+    # listing of simulated data
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     output$table1 <- renderPrint({
       
-      return(     make.data2()$d)
+      return(make.data2()$d)
       
     })
     
@@ -718,15 +540,13 @@ server <- shinyServer(function(input, output   ) {
       names(bs ) <- c("Lower whisker", "Lower ‘hinge’", "Median", "Upper ‘hinge’" ,"Upper whisker")
  
       return(  print(bs, row.names = FALSE)) 
-      
-       
+
     })
     
     output$table3 <- renderPrint({
       
       dd <-  make.data2()$d 
       
-     
        f <- summary(dd$y)
        f <- as.matrix(f);
        f <-p2(f)
@@ -736,7 +556,6 @@ server <- shinyServer(function(input, output   ) {
        names(f ) <- c("Minimum", "1st.Quartile", "Median", "Mean", "3rd.Quartile", "Maximum")
       
      return( print(f, row.names = FALSE)) 
-      
       
     })
     
@@ -753,13 +572,11 @@ server <- shinyServer(function(input, output   ) {
       
       return(  print(bs, row.names = FALSE)) 
       
-      
     })
     
     output$table5 <- renderPrint({
       
       dd <-  make.data2()$d 
-      
       
       f <- summary(dd$logy)
       f <- as.matrix(f);
@@ -770,82 +587,9 @@ server <- shinyServer(function(input, output   ) {
       names(f ) <- c("Minimum", "1st.Quartile", "Median", "Mean", "3rd.Quartile", "Maximum")
       
       return( print(f, row.names = FALSE)) 
-      
-      
+
     })
     
-    
-    
-    # output$table<- renderTable({  
-    # 
-    # 
-    #    print(make.data2()$d)
-    #   
-    #  # summary(d)
-    #   
-    # })
-    
-     
-    
-    # output$table <- renderTable({
-    #   t1()$resid
-    # })
-    
-    
- 
-    
-    
-    
-    
-    
-    
-    
-    
-    #--------------------------------------------------------------------------
-    #---------------------------------------------------------------------------
-    # Plot residuals 
-    
-   # output$summary <- reactive({     
-   # 
-   #     d  <- reg.plot()
-   #   
-   #    x<- tapply(d$y, d$x, summary)
-   #  
-   # })
-    
-    #---------------------------------------------------------------------------
- # Show the summary for the 
-  #  output$reg.summary <- renderPrint({
-        
-        # summary <- fit.regression()$fit.summary
-        # 
-        # if (!is.null(summary)) {
-        #     
-        #     return(fit.regression()$fit.summary)
-        # }
-        
-   # })
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # the data to print
-    #output$summary2 <- renderPrint({
-      
-     # return(make.regression()$dd)
-      
-    #})
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # the data to print, I wooulf like to reuse this but dont think it is possible? So I add another function to collect the same information below
-    #output$byhand <- renderPrint({
-      
-   #   return(explain()$ANOVA)
-
-    #})
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     output$summary <- renderPrint({
-   
-  
-    
-    #return(list( reg.plot()$xx)) 
-     })
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
 })
 
