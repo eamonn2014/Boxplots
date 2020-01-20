@@ -140,7 +140,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
                   Then we present the boxplot, finally replace the axis log values with the antilog values.")) ,
                   
                    
-                  p(strong("There are subtlties in the boxplot calculations.
+                  p(strong("There are subtleties in the boxplot calculations.
                   Often you may hear it is said, 'the limits of the boxes represent Q1 and Q3 and the 
                   whiskers extend +/- 1.5 x Q3-Q1'. 
                   This is not necessarily true. There are many variations on the box plot, it is therefore better to explicitly state what is being presented.")) ,
@@ -186,7 +186,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         
                  
                  p(strong("")),
-                 h3("Take home messages; when the sample size is odd, the hinges may not necessarily equal Q1 and Q3 (raw and transformed) and the transformed median may be slightly different to the raw median.
+                 h3("Take home messages; when the sample size is even, the hinges may not necessarily equal Q1 and Q3 (raw and transformed) and the transformed median may be slightly different to the raw median.
                       The fences may not necessarily equal the fences on the raw scale for any sample size.
                     Explicitly state how you constructed your boxplots.")
                                   ) ,
