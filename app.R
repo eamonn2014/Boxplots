@@ -215,7 +215,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
 p(strong("
 We order the countries by the median city population for the 10 largest cities.  
 
-The top left figure present the raw data. Due to thie presentation according to median we see the spread tends to increase 
+The top left figure present the raw data. Due to the presentation according to median we see the spread tends to increase 
 as the level does which does not support equal variability. When variabilty is equal 
 across batches this often simplifies further analysis. To promote equality of spread and
 reduce the dependency of spread on level, we will re-express (transform) the data.
@@ -236,7 +236,7 @@ The log transformation has boxes which are more equally spread, similar
                  
                  This is Paraphrasing from 'Understanding Robust and Exploratorty Data Analysis', 1983 [6].")),
 div(""),
-p(strong("The top left panel presents boxplots on the raw scale. The top right shows what happend when all 
+p(strong("The top left panel presents boxplots on the raw scale. The top right shows what happens when all 
 you do is log the top left plot. This is not the preferred approach. The bottom left and bottom 
 right are the preferred approach described above re-expressing the data using the natural log and log10 transformation.")),
 ),
