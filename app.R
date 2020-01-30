@@ -622,7 +622,7 @@ server <- shinyServer(function(input, output   ) {
       median.r <- rank(tapply(d$Population, d$Country, median))   # rank by median
       labels <- names(sort(median.r))                               # sort and get the names for labels
       d$Country <- factor(d$Country , levels=c(labels))             # relevel factor levels
-      
+      n <- length(d$Population)
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       par(mfrow=c(2,2))
       
@@ -664,7 +664,7 @@ server <- shinyServer(function(input, output   ) {
                   col=rev(rainbow(16)) , range=1.5, 
                   ylim=c( log(.8), log(100) ), 
                   main=paste("Presenting the same data\n natural log transf. the data antilog scale, N=",n ) )  
-      text(y=1:16, par("usr")[1] +.03, srt =0, adj = 1,    ##1 -.89
+      text(y=1:16, par("usr")[1] +.01, srt =0, adj = 1,    ##1 -.89
            labels = labels, xpd = TRUE)
       text(y=18, x=0, srt =0, adj = 0,
            labels = paste("Presenting the data using nat log, N=",n ), xpd = TRUE)
