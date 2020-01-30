@@ -234,7 +234,7 @@ The log transformation has boxes which are more equally spread, similar
                            relatively closer to the upper outlier cutoffs. 
                            The transformation does improve the data in important ways.'
                  
-                 This is Paraphrasing from 'Understanding Robust and Exploratorty Data Analysis', 1983 [6].")),
+                 This is Paraphrasing from 'Understanding Robust and Exploratory Data Analysis', 1983 [6].")),
 div(""),
 p(strong("The top left panel presents boxplots on the raw scale. The top right shows what happens when all 
 you do is log the top left plot. This is not the preferred approach. The bottom left and bottom 
