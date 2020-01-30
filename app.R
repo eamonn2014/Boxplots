@@ -242,8 +242,22 @@ right are the preferred approach described above re-expressing the data using th
 ),
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        tabPanel(" ", 
-        )
+                    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 tabPanel("Data listing 1967 World Almanac", value=3, 
+
+                          # DT::dataTableOutput("table99"),
+                          
+                          
+                          fluidRow(
+                            column(
+                             DT:: dataTableOutput(outputId = "table99"), width = 6)
+                          )
+                          
+                          
+                          
+                 ) 
+                 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         )
        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -686,6 +700,37 @@ server <- shinyServer(function(input, output   ) {
       
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       
+    })
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+    output$table99 <- DT::renderDataTable({
+      
+      foo<- tukey.data()$d
+      
+      names(foo) <- c("Country", "Population 100,000s")
+      
+      rownames(foo) <- NULL
+      
+      library(DT)
+      
+      datatable(foo,   
+                
+                rownames = TRUE,
+                
+                options = list(
+                  searching = TRUE,
+                  pageLength = input$V-1,
+                  paging=FALSE,
+                  lengthMenu = FALSE ,
+                  lengthChange = FALSE,
+                  autoWidth = TRUE
+                  # colReorder = TRUE,
+                  # deferRender = TRUE,
+                  # scrollY = 200,
+                  # scroller = T
+                ))  %>%
+        formatRound(
+          columns= c("Country", "Population 100,000s"), digits=c(0,2)  )
     })
     
     
