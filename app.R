@@ -99,6 +99,11 @@ ui <- fluidPage(theme = shinytheme("journal"),
           div(p(" ")),
           tags$a(href = "https://r.789695.n4.nabble.com/Whiskers-on-the-default-boxplot-graphics-td2195503.html", "[5] Whiskers on the default boxplot"),
           div(p(" ")),
+          tags$a(href = "https://www.wiley.com/en-us/Understanding+Robust+and+Exploratory+Data+Analysis-p-9780471384915", "[6] Understanding Robust and Exploratory Data Analysis"),
+          div(p(" ")),
+          
+          
+          
           
                )
 
@@ -197,8 +202,45 @@ ui <- fluidPage(theme = shinytheme("journal"),
                  div( verbatimTextOutput("table1")),
         ) ,
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        tabPanel(" ", 
-        ) ,
+        tabPanel("Another Example 1967 World Almanac data", 
+                 div(plotOutput("reg.plot3", width=fig.width, height=fig.height)),  
+                 
+                 p(strong( "'The 1967 World Almanac lists 16 countries that have 10 or more large cities,
+                 the dataset we use consist of the 10 largest cities. The dataset gives rise to many questions 
+                 i) How do the median populations of major cities compare across countries? 
+                 Are the smallest cities in China larger than the largest cities of some other countries? 
+                 Do the countries having larger cities tend to show more variabilty in city populations? 
+                 Which cities are outliers relative to other cities in their own coutries?")),
+                 div(""),
+p(strong("
+We order the countries by the median city population for the 10 largest cities.  
+
+The top left figure present the raw data. Due to thie presentation according to median we see the spread tends to increase 
+as the level does which does not support equal variability. When variabilty is equal 
+across batches this often simplifies further analysis. To promote equality of spread and
+reduce the dependency of spread on level, we will re-express (transform) the data.
+
+Log transformations are monotonic for positive data values, the order statistics 
+of the transformed data will equal the transformed original order statistics
+(except for rounding and interporlation as we have seen). However after we 
+recalculate the IQR and the outlier cut-offs, the cities that were originally 
+high-side outliers may no longer be and some that were not outliers may now be 
+low side outliers, though this is unlikely as we have the the ten highest.
+
+The log transformation has boxes which are more equally spread, similar
+                           in length and the remaining inequality does not seem to be much related to length. 
+                           The outliers are pulled in also. Of the 19 outliers in the raw scale, 
+                           eight cities are no longer outliers and the other have moved 
+                           relatively closer to the upper outlier cutoffs. 
+                           The transformation does improve the data in important ways.'
+                 
+                 This is Paraphrasing from 'Understanding Robust and Exploratorty Data Analysis', 1983 [6].")),
+div(""),
+p(strong("The top left panel presents boxplots on the raw scale. The top right shows what happend when all 
+you do is log the top left plot. This is not the preferred approach. The bottom left and bottom 
+right are the preferred approach described above re-expressing the data using the natural log and log10 transformation.")),
+),
+
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tabPanel(" ", 
         )
@@ -517,6 +559,144 @@ server <- shinyServer(function(input, output   ) {
       
     })
  
+    
+    
+    tukey.data <- reactive({
+      
+      country <- as.character( c("Sweden ", 
+                                 "Holland ", "Canada ", "France ", "Mexico ", "Argentina ", "Spain ", "UK ",
+                                 "W.Germ. ", 
+                                 "Brazil ", "USSR ", "Japan ", 
+                                 "US ", "India ", "China ", "Italy ") )
+      
+      Country <- rep(country, each=10)
+      Population = c(7.87,   4.22, 2.49, 0.94, 0.89, 0.87, 0.81, 0.78, 0.71, 0.69, 8.68, 7.31, 
+                     6.02, 2.64, 1.75, 1.72, 1.51, 1.42, 1.31, 1.29, 11.91, 6.72, 
+                     3.84, 2.81, 2.73, 2.68, 2.65, 2.49, 1.71, 1.69, 28.11, 7.83, 
+                     5.35, 3.3, 2.94, 2.54, 2.46, 2.33, 2.03, 1.99, 31.18, 10.12, 
+                     8.06, 3.79, 3.46, 2.91, 2.71, 2.17, 2.06, 1.86, 29.66, 7.61, 
+                     6.35, 4.1, 3.8, 2.75, 2.7, 2.69, 2.51, 2.44, 25.99, 16.96, 5.01, 
+                     4.74, 3.57, 3.34, 3.12, 2.64, 2.14, 1.69, 79.86, 11.02, 7.22, 
+                     6.38, 5.09, 4.88, 4.3, 3.3, 3.1, 2.99, 21.92, 18.56, 11.42, 8.27, 
+                     7.28, 7.02, 6.94, 6.53, 5.84, 5.66, 49.81, 38.57, 9.68, 9.52, 
+                     8.08, 8.03, 6.99, 5.02, 4.95, 2.78, 63.34, 36.36, 13.32, 11.37, 
+                     10.9, 10.84, 10.7, 10.27, 9.5, 9.17, 110.21, 32.14, 18.88, 16.39, 
+                     13.37, 11.95, 10.7, 7.89, 7.71, 7.04, 77.81, 35.5, 24.79, 20.02, 
+                     16.7, 9.39, 9.38, 8.76, 7.63, 7.5, 45.37, 30.03, 22.98, 20.62, 
+                     17.25, 16.11, 11.49, 9.47, 9.07, 7.21, 69, 40.1, 36.92, 32.2, 
+                     24.11, 21.46, 21.21, 16.5, 15, 11.13,
+                     23.59,15.8,11.82,11.14,7.84,5.9,4.54,4.44,3.62,3.36
+      )
+      
+      d <- data.frame(Country=Country, Population=Population)
+      
+      return(list(d=d  )) 
+      
+    })
+    
+    
+    
+    
+    
+    
+    output$reg.plot3 <- renderPlot({         
+      
+      d <- tukey.data()$d
+   
+      
+      
+      median.r <- rank(tapply(d$Population, d$Country, median))   # rank by median
+      labels <- names(sort(median.r))                               # sort and get the names for labels
+      d$Country <- factor(d$Country , levels=c(labels))             # relevel factor levels
+      
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      par(mfrow=c(2,2))
+      
+      A<- boxplot( data=d, Population~Country, horizontal=TRUE,  yaxt="n",ann=FALSE, #  ylab=ylab.,
+                   outline=1,
+                   col=rev(rainbow(16)) , range=1.5, 
+                   main=paste("Presenting the data \nuntransformed; , N=",n ) ) 
+      text(y=1:16, par("usr")[1] +.1, srt =0, adj = 1,
+           labels = labels, xpd = TRUE)
+      text(y=18, x=5, srt =0, adj = 0,
+           labels = paste("Presenting the data untransformed, N=",n ), xpd = TRUE)
+      text(y=-4, x=1, srt =0, adj = 0,
+           labels = "Population in 100,000s", xpd = TRUE)
+      
+      
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      
+      
+      B <- boxplot(data=d, Population~Country,   log="x", horizontal=TRUE,  yaxt="n",ann=FALSE,
+                   
+                   outline=1,
+                   col=rev(rainbow(16)) , range=1.5, #terrain.colors(1) 
+                   main=paste("Presenting the  data \nusing log option, N=",n ) ) 
+      text(y=1:16, par("usr")[1] +.82, srt =0, adj = 1,          #+.48
+           labels = labels, xpd = TRUE)
+      text(y=18, x=1, srt =0, adj = 0,
+           labels = paste("Using the R log option - incorrect, N=",n ), xpd = TRUE)
+      text(y=-4, x=1, srt =0, adj = 0,
+           labels = "Population in 100,000s", xpd = TRUE)
+      
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      
+      ticks=log(c(1,2,5,10,20,50,100 ))
+      labs <- exp(ticks)
+      p <- (d$Population)
+      Co <- d$Country
+      C <-boxplot(log(p)~Co,      horizontal=TRUE,  xaxt="n",ann=FALSE,yaxt="n",
+                  outline=1,
+                  col=rev(rainbow(16)) , range=1.5, 
+                  ylim=c( log(.8), log(100) ), 
+                  main=paste("Presenting the same data\n natural log transf. the data antilog scale, N=",n ) )  
+      text(y=1:16, par("usr")[1] +.03, srt =0, adj = 1,    ##1 -.89
+           labels = labels, xpd = TRUE)
+      text(y=18, x=0, srt =0, adj = 0,
+           labels = paste("Presenting the data using nat log, N=",n ), xpd = TRUE)
+      axis(1, at=ticks, labels=labs, las=1)
+      text(y=-4, x=0, srt =0, adj = 0,
+           labels = "Population in 100,000s", xpd = TRUE)
+      
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      
+      ticks=log10(c( 1,2,5,10,20,50,100 ))
+      labs <- 10^(ticks)
+      
+      D<-boxplot(log10(p)~Co,     horizontal=TRUE,  xaxt="n",ann=FALSE,yaxt="n",
+                 outline=1,
+                 col=rev(rainbow(16)), range=1.5, 
+                 ylim=c( log10(.8), log10(100) ), 
+                 main=paste("Presenting the same data\n log10 transf. the data antilog scale, N=",n ) )  
+      text(y=1:16, par("usr")[1] +.00, srt =0, adj = 1,    #-.38 0
+           labels = labels, xpd = TRUE)
+      text(y=18, x=0, srt =0, adj = 0,
+           labels = paste("Presenting the data using log10, N=",n ), xpd = TRUE)
+      axis(1, at=ticks, labels=labs, las=1)
+      
+      text(y=-4, x=0, srt =0, adj = 0,
+           labels = "Population in 100,000s", xpd = TRUE)
+      
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      
+      par(mfrow=c(1,1))
+      
+      
+      
+      
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      
+    })
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
     # listing of simulated data
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
