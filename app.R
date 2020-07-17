@@ -12,6 +12,7 @@
     library(shiny) 
     library(nlme)
     library(VCA)
+    library(shinyWidgets)
     options(max.print=1000000)
     fig.width <- 1200
     fig.height <- 550
@@ -24,7 +25,11 @@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ui <- fluidPage(theme = shinytheme("journal"),
-             
+                setBackgroundColor(
+                  color = c( "#2171B5", "#F7FBFF"), 
+                  gradient = "linear",
+                  direction = "bottom"
+                ),
                 shinyUI(pageWithSidebar(
 
 #ui <-shinyUI(pageWithSidebar(
@@ -36,6 +41,9 @@ ui <- fluidPage(theme = shinytheme("journal"),
    
     sidebarPanel( 
      
+      width=3 ,
+      tags$style(type="text/css", ".span8 .well { background-color: #00FFFF; }"),
+      
         div(p("This is a simple app to show the benefits of using a transformation on skewed data when plotting, specifically using boxplots [1].
         Imagine randomly allocating subjects to 3 groups, treating them differently and then comparing them with 
         respect to a measured laboratory response. Laboratory tests quantify the presence of analytes and 
@@ -730,7 +738,7 @@ server <- shinyServer(function(input, output   ) {
                   # scroller = T
                 ))  %>%
         formatRound(
-          columns= c("Country", "Population 100,000s"), digits=c(0,2)  )
+          columns= c("Population 100,000s"), digits=c(2)  )
     })
     
     
