@@ -54,16 +54,30 @@ ui <- fluidPage(theme = shinytheme("journal"),
               Here we use base R boxplots [2]. When we select 'Show me the data!' we present all the data and add random noise 
               to shift all the data points for better visualisation. ")),
         
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      
         div(
-       
-       
+        actionButton(inputId='ab1', label="Shiny",   icon = icon("th"), 
+                                       onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/Boxplots/master/app.R', '_blank')"),   
           actionButton(inputId='ab1', label="R code",   icon = icon("th"), 
-                       onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/Boxplots/master/app.R', '_blank')"),   
+                                       onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/plotting-longitudinal-data2/master/plotting-longitudinal-data.R', '_blank')"),   
           actionButton("resample", "Simulate a new sample"),
+        
           br(), br(),
+          tags$style(".well {background-color:#e5e5e5 ;}"),  ## #b6aebd
           
-  
-            div(strong("Select the parameters using the sliders below"),p(" ")),
+          tags$head(
+            tags$style(HTML('#ab1{background-color:orange}'))
+          ),
+          
+          tags$head(
+            tags$style(HTML('#resample{background-color:orange}'))
+          ),
+          
+          
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          
+        div(strong("Select the parameters using the sliders below"),p(" ")),
 
             
             div(("Both the number of data points and the length of the whiskers can be varied. 
@@ -80,23 +94,29 @@ ui <- fluidPage(theme = shinytheme("journal"),
             br(),
           
           sliderInput("N",
-                      "Select the total number of data points",
+                      
+                      div(h5(tags$span(style="color:blue",  "Select the total number of data points",))),  
                       min=3, max=500, step=1, value=100, ticks=FALSE),
           
           sliderInput("Whisker",
-                      "Select the length of whiskers (multiples of the IQR)",
+                      div(h5(tags$span(style="color:blue",  "Select the length of whiskers (multiples of the IQR)",))),
                       min=0, max=3, step=.5, value=1.5, ticks=TRUE),
+      
           
-          sliderInput("outliers",
-                      "Highlight 'outliers'",
-                      min=0, max=1, step=1, value=0, ticks=FALSE),
+          selectInput("outliers",
+                      div(h5(tags$span(style="color:blue",  "Highlight 'outliers'",))),
+                      choices=c("Yes","No"), selected = "No"),
           
-          sliderInput("dp",
-                      "Show me the data!",
-                      min=0, max=1, step=1, value=1, ticks=FALSE),
+      
           
-          div(p("References:")),  
+          selectInput("dp",
+                      div(h5(tags$span(style="color:blue", "Show me the data!",))),
+                      choices=c("Yes","No"), selected = "Yes"),
           
+          
+          
+          # div(p("References:")),  
+          div(h5(tags$span(style="color:blue", "References",))),
           tags$a(href = "https://en.wikipedia.org/wiki/Exploratory_data_analysis", "[1] Tukey, J.W. 'Exploratory Data Analysis'"),
           div(p(" ")),
           tags$a(href = "https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/boxplot", "[2] R boxplot"),
@@ -337,6 +357,9 @@ server <- shinyServer(function(input, output   ) {
        
        rangez <-    input$Whisker       # multiples of IQR length of whiskers, 0 means out to maximum
        outliers <-  input$outliers   
+       
+       outliers <- ifelse(outliers %in% "Yes",1,0)
+       
        dp<-         input$dp 
       
         ticks=c(log(0.001),log(0.01), log(.1), log(1), log(10), log(100), log(1000))
@@ -377,7 +400,7 @@ server <- shinyServer(function(input, output   ) {
                   col=terrain.colors(4) , range=rangez,
                   ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", input$N) ) 
           
-          if (dp==1) {
+          if (dp=="Yes") {
 
           # Add data points
           mylevels <- levels(d$x)
@@ -428,7 +451,7 @@ server <- shinyServer(function(input, output   ) {
           
          # rug(x = 1:3, ticksize = 0.01, side = 1)  #ticks above line
           rug(x = log(tickz), ticksize = -0.01, side = 2)
-          if (dp==1) {
+          if (dp=="Yes") {
           # Add data points
           mylevels <- levels(d$x)
           levelProportions <- summary(d$x)/nrow(d)
@@ -457,6 +480,8 @@ server <- shinyServer(function(input, output   ) {
      # rangez <- make.data2()$rangez
       
       outliers <-  input$outliers   
+      outliers <- ifelse(outliers %in% "Yes",1,0)
+      
       dp<-         input$dp 
       
       A <-seq(from=0.001, to= 0.01, by=0.001)
@@ -503,7 +528,7 @@ server <- shinyServer(function(input, output   ) {
               ylim=c(0,max(d$y)*1.2), 
               main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", input$N,"\n"))
       
-      if (dp==1) {
+      if (dp=="Yes") {
         cols <-  c(    "purple")
          
         # Add data points
@@ -559,7 +584,7 @@ server <- shinyServer(function(input, output   ) {
               col=terrain.colors(4) [3], range=rangez, width=10,
               ylim=c(log(low),log(up))) 
       
-      if (dp==1) {
+      if (dp=="Yes") {
         cols <-  c(    "purple")
 
         # Add data points
