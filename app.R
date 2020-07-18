@@ -60,7 +60,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         actionButton(inputId='ab1', label="Shiny",   icon = icon("th"), 
                                        onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/Boxplots/master/app.R', '_blank')"),   
           actionButton(inputId='ab1', label="R code",   icon = icon("th"), 
-                                       onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/plotting-longitudinal-data2/master/plotting-longitudinal-data.R', '_blank')"),   
+                                       onclick ="window.open('https://raw.githubusercontent.com/eamonn2014/Boxplots/master/Rcode.R', '_blank')"),   
           actionButton("resample", "Simulate a new sample"),
         
           br(), br(),
