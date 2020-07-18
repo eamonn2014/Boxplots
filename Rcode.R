@@ -399,7 +399,7 @@
                 
                 options = list(
                   searching = TRUE,
-                  pageLength = 160,
+                  pageLength = 16,
                   paging=FALSE,
                   lengthMenu = FALSE ,
                   lengthChange = FALSE,
@@ -410,7 +410,7 @@
                   # scroller = T
                 ))  %>%
         formatRound(
-          columns= c("Population 100,000s"), digits=c(2)  )
+          columns= c("Population 100,000s"), digits=c(2)  )  
     
     
     
