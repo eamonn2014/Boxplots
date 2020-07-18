@@ -165,7 +165,7 @@ ui <- fluidPage(theme = shinytheme("journal"),
         h3("Figure 1 Left panel untransformed data, right panel natural log transformation labelled with antilogs"),
         
         p(strong("Boxplots are simple graphical characterisations of continuous variables. 
-        Boxplots were proposed by Tukey, J.W. in his 1977 book 'Exploratory Data Analysis' (only in 1977!).
+        Boxplots were proposed by Tukey, J.W. in his 1977 book 'Exploratory Data Analysis'.
                   In this example, we re-express the data using a natural logarithmic transformation.
                   Next, prior to presentation, perform the boxplot calculations. So first, perform the natural
                   log transformation on the data. Secondly create a boxplot, 
