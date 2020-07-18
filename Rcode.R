@@ -67,7 +67,7 @@
           boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab., 
                   outline=outliers,
                    col=terrain.colors(4) , range=rangez,
-                   ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", N) ) 
+                   ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N =", N) ) 
          axis(1, at=1:3, labels=xlab., tick=FALSE)
           axis(2,   las=2)
          # grid(NA, NULL, col="cornsilk2", lty=6)
@@ -80,7 +80,7 @@
           boxplot(d$y ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
                   outline=outliers,
                   col=terrain.colors(4) , range=rangez,
-                  ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N=", N) ) 
+                  ylim=c(0,max(d$y)), main=paste("Presenting data on untransformed scale, N =", N) ) 
           
           if (dp=="Yes") { 
 
@@ -114,7 +114,7 @@
           boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
                   outline=outliers,
                   col=terrain.colors(4) , range=rangez,
-                  ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",N) )
+                  ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N =",N) )
           axis(1, at=1:3, labels=xlab., tick=FALSE)
           axis(2, at=ticks, labels=labs, las=2)
           #abline(h=ticks, col="cornsilk2", lty=6)
@@ -126,7 +126,7 @@
           boxplot(d$logy ~ d$x, xaxt="n", yaxt="n", xlab=xlabz, ylab=ylab.,
                   outline=outliers,
                   col=terrain.colors(4) , range=rangez,
-                  ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N=",N) )
+                  ylim=c(log(low),log(up)), main=paste("Presenting the same data; log the data with antilog scale, N =",N) )
           
           
          # rug(x = 1:3, ticksize = 0.01, side = 1)  #ticks above line
@@ -186,7 +186,7 @@
               outline=outliers,
               col=terrain.colors(4)[3] , range=rangez,  width=10,
               ylim=c(0,max(d$y)*1.2), 
-              main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", N,"\n"))
+              main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N =", N,"\n"))
      # axis(1, at=1:3, labels=xlab.)
       axis(1,   las=1)
        grid(  NULL, NA, col="cornsilk2", lty=7)
@@ -198,7 +198,7 @@
               outline=outliers,
               col=terrain.colors(4)[3] , range=rangez,  width=10,
               ylim=c(0,max(d$y)*1.2), 
-              main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N=", N,"\n"))
+              main=paste("Presenting the data with the boxplot statistics, top the raw untransformed scale, bottom log transforming the same data, with an antilog scale, N =", N,"\n"))
       
       if (dp=="Yes") {
         cols <-  c(    "purple")
@@ -320,11 +320,11 @@
       A<- boxplot( data=d, Population~Country, horizontal=TRUE,  yaxt="n",ann=FALSE, #  ylab=ylab.,
                    outline=1,
                    col=rev(rainbow(16)) , range=1.5, 
-                   main=paste("Presenting the data \nuntransformed; , N=",n ) ) 
+                   main=paste("Presenting the data \nuntransformed; , N =",n ) ) 
       text(y=1:16, par("usr")[1] +.1, srt =0, adj = 1,
            labels = labels, xpd = TRUE)
       text(y=18, x=5, srt =0, adj = 0,
-           labels = paste("Presenting the data untransformed, N=",n ), xpd = TRUE)
+           labels = paste("Presenting the data untransformed, N =",n ), xpd = TRUE)
       text(y=-4, x=1, srt =0, adj = 0,
            labels = "Population in 100,000s", xpd = TRUE)
       
@@ -336,11 +336,11 @@
                    
                    outline=1,
                    col=rev(rainbow(16)) , range=1.5, #terrain.colors(1) 
-                   main=paste("Presenting the  data \nusing log option, N=",n ) ) 
+                   main=paste("Presenting the  data \nusing log option, N =",n ) ) 
       text(y=1:16, par("usr")[1] +.82, srt =0, adj = 1,          #+.48
            labels = labels, xpd = TRUE)
       text(y=18, x=1, srt =0, adj = 0,
-           labels = paste("Using the R log option - incorrect, N=",n ), xpd = TRUE)
+           labels = paste("Using the R log option - incorrect, N =",n ), xpd = TRUE)
       text(y=-4, x=1, srt =0, adj = 0,
            labels = "Population in 100,000s", xpd = TRUE)
       
@@ -354,11 +354,11 @@
                   outline=1,
                   col=rev(rainbow(16)) , range=1.5, 
                   ylim=c( log(.8), log(100) ), 
-                  main=paste("Presenting the same data\n natural log transf. the data antilog scale, N=",n ) )  
+                  main=paste("Presenting the same data\n natural log transf. the data antilog scale, N =",n ) )  
       text(y=1:16, par("usr")[1] +.01, srt =0, adj = 1,    ##1 -.89
            labels = labels, xpd = TRUE)
       text(y=18, x=0, srt =0, adj = 0,
-           labels = paste("Presenting the data using nat log, N=",n ), xpd = TRUE)
+           labels = paste("Presenting the data using nat log, N =",n ), xpd = TRUE)
       axis(1, at=ticks, labels=labs, las=1)
       text(y=-4, x=0, srt =0, adj = 0,
            labels = "Population in 100,000s", xpd = TRUE)
@@ -372,11 +372,11 @@
                  outline=1,
                  col=rev(rainbow(16)), range=1.5, 
                  ylim=c( log10(.8), log10(100) ), 
-                 main=paste("Presenting the same data\n log10 transf. the data antilog scale, N=",n ) )  
+                 main=paste("Presenting the same data\n log10 transf. the data antilog scale, N =",n ) )  
       text(y=1:16, par("usr")[1] +.00, srt =0, adj = 1,    #-.38 0
            labels = labels, xpd = TRUE)
       text(y=18, x=0, srt =0, adj = 0,
-           labels = paste("Presenting the data using log10, N=",n ), xpd = TRUE)
+           labels = paste("Presenting the data using log10, N =",n ), xpd = TRUE)
       axis(1, at=ticks, labels=labs, las=1)
       
       text(y=-4, x=0, srt =0, adj = 0,
